@@ -13,7 +13,7 @@ Recommended procedure:
     ```
     ip a
     ```
-  - SSH to the host from your machine, logging in as **core** using the password you just set.
+  - SSH to the host from your machine, logging in as **core** using the password you just set
   - Create a cloud-init or ignition config that sets an SSH key for **core** and sets Docker to use an insecure registry. We will pass this file to `coreos-install` to use while installing the OS to disk. The IP or hostname of the insecure registry must be the actual location you intend to use (FIXME: add a note that what you put here in the end will point at THIS host - the deployer), but the private Docker Registry does not have to be running yet.  
     ```
     #cloud-config
