@@ -21,7 +21,7 @@ Recommended procedure:
     ssh_authorized_keys:
       - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDGdByTgSVHq.......
     
-    manage_etc_hosts: "localhost"
+    manage_etc_hosts: localhost
     
     coreos:
       units:
