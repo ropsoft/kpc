@@ -33,9 +33,9 @@ Recommended procedure:
                 Environment='DOCKER_OPTS=--insecure-registry="10.101.10.16:5000"'
           command: restart
     ```  
-  - Find the device name of the disk you set the deployer to boot to, using `fdisk -l` or similar. The example coreos-install command below assumes you found this device at '/dev/sda'.
-  - If you need to configure a static DHCP lease for your deployer node this is a good time to do it, so that you get the new IP when the system reboots.
+  - Find the device name of the disk you set the deployer to boot to, using `sudo fdisk -l` or similar. The example coreos-install command below assumes you found this device at '/dev/sda'.
+  - If you need to configure a static DHCP lease in your router for your deployer node this is a good time to do it, so that you get the new IP when the system reboots.
   - Run coreos-install to install to disk:
     ```
-    coreos-install -d /dev/sda -C stable -c ~/cloud-config.yaml
+    sudo coreos-install -d /dev/sda -C stable -c ~/cloud-config.yaml
     ```
