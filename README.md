@@ -38,4 +38,5 @@ Recommended procedure:
   - Run coreos-install to install to disk:
     ```
     sudo coreos-install -d /dev/sda -C stable -c ~/cloud-config.yaml
+    sudo reboot
     ```
