@@ -10,8 +10,9 @@ systemd:
         After=network-online.target
         [Service]
         Type=oneshot
-        ExecStart=/usr/bin/curl {{.ignition_endpoint}}?{{.query}}&os=installed -o ignition.json
-        ExecStart=/usr/bin/coreos-install -d /dev/nvme0n1 -C stable -V 1010.5.0 -i ignition.json
+        #ExecStart=/usr/bin/curl {{.ignition_endpoint}}?{{.query}}&os=installed -o ignition.json
+        #ExecStart=/usr/bin/coreos-install -d /dev/nvme0n1 -C stable -V 1010.5.0 -i ignition.json
+        ExecStart=/usr/bin/coreos-install -d /dev/nvme0n1 -C stable -V 1010.5.0
         ExecStart=/usr/bin/udevadm settle
         ExecStart=/usr/bin/systemctl reboot
         [Install]
