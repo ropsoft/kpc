@@ -1,0 +1,11 @@
+{
+  "id": "coreos-install",
+  "name": "CoreOS Install",
+  "profile": "install-reboot",
+  "metadata": {
+    "coreos_channel": "KPC_coreos_channel",
+    "coreos_version": "KPC_coreos_version",
+    "ignition_endpoint": "http://KPC_ignition_endpoint:8080/ignition"
+    "ssh_authorized_keys": ["KPC_ssh_authorized_keys"]
+  }
+}
