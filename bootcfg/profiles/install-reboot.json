@@ -1,0 +1,15 @@
+{
+  "id": "install-reboot",
+  "name": "Install CoreOS and Reboot",
+  "boot": {
+    "kernel": "/assets/coreos/KPC_coreos_version/coreos_production_pxe.vmlinuz",
+    "initrd": ["/assets/coreos/KPC_coreos_version/coreos_production_pxe_image.cpio.gz"],
+    "cmdline": {
+      "coreos.config.url": "http://KPC_ignition_endpoint:8080/ignition?mac=${net0/mac:hexhyp}",
+      #"coreos.autologin": "",
+      "coreos.first_boot": ""
+    }
+  },
+  "cloud_id": "",
+  "ignition_id": "coreos-install.yaml"
+}
