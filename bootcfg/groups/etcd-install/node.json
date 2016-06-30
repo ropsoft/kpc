@@ -1,12 +1,12 @@
 {
-	"id": "etcd-aws",
-	"name": "etcd Node",
-	"profile": "etcd",
-	"selector": {
+  "id": "etcd",
+  "name": "etcd Node",
+  "profile": "etcd",
+  "selector": {
     "os": "installed"
-	},
-	"metadata": {
-		"etcd_discovery": "KPC_discovery_token",
-		"ssh_authorized_keys": ["KPC_ssh_authorized_keys"]
-	}
+  },
+  "metadata": {
+    "etcd_discovery": "KPC_discovery_token",
+    "ssh_authorized_keys": ["KPC_ssh_authorized_keys"]
+  }
 }
