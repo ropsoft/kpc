@@ -1,0 +1,32 @@
+---
+ignition_version: 1
+systemd:
+  units:
+    - name: etcd2.service
+      enable: true
+      dropins:
+        - name: metadata.conf
+          contents: |
+            [Service]
+            ExecStart=/usr/bin/etcd2 \
+              --advertise-client-urls=http://0.0.0.0:2379 \
+              --initial-advertise-peer-urls=http://0.0.0.0:2380 \
+              --listen-client-urls=http://0.0.0.0:2379 \
+              --listen-peer-urls=http://0.0.0.0:2380 \
+              --discovery={{.etcd_discovery}}
+    - name: docker.service
+      dropins:
+        - name: 50-insecure-registry.conf
+          contents: |
+            [Service]
+            Environment='DOCKER_OPTS=--insecure-registry="10.101.10.16:5000"'
+      command: restart
+{{ if .ssh_authorized_keys }}
+passwd:
+  users:
+    - name: core
+      ssh_authorized_keys:
+        {{ range $element := .ssh_authorized_keys }}
+        - {{$element}}
+        {{end}}
+{{end}}
