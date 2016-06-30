@@ -5,16 +5,20 @@ Get deployer node running on CoreOS that has been installed to disk.
 Recommended procedure:  
   - Download the CoreOS ISO and copy to USB flash drive with 'dd' or one of the many generic ISO to USB helper tools (Rufus [highly recommended on Windows], UNetbootin, Universal USB Installer, etc.).
   - Set deployer node to boot from the disk you will install to, then perform a one-time boot from the flash drive; this will bring up a live-booted (to RAM) CoreOS system and automatically log you in as '**core**'.
-  - Set a password for the **core** user:
+  - Set a password for the **core** user:  
     ```
     sudo passwd core
     ```
-  - Note the IP the system gets, as we will SSH to the host in next steps
+  - Note the IP the system gets, as we will SSH to the host in next steps:  
     ```
     ip a
     ```
   - SSH to the host from your machine, logging in as **core** using the password you just set
   - Create a cloud-init or ignition config that sets an SSH key for **core** and sets Docker to use an insecure registry. We will pass this file to `coreos-install` to use while installing the OS to disk. The IP or hostname of the insecure registry must be the actual location you intend to use (FIXME: add a note that what you put here in the end will point at THIS host - the deployer), but the private Docker Registry does not have to be running yet.  
+    ```
+    cd && vim cloud-config.yaml
+    ```
+    Contents:
     ```
     #cloud-config
     
@@ -40,3 +44,21 @@ Recommended procedure:
     sudo coreos-install -d /dev/sda -C stable -c ~/cloud-config.yaml
     sudo reboot
     ```
+  - Check out this repo:
+    ```
+    git clone https://github.com/ropsoft/KPC.git
+    ```
+  - Build container with IPMI tools:
+    ```
+    cd KPC/dockerfiles/
+    docker build -t ipmitool ipmitool/
+    ```
+  - Get CoreOS image assets:
+    ```
+    c
+    ```
+  - Start dnsmasq and bootcfg containers:
+    ```
+    cd ..
+    
+    docker run -p 8080:8080 --rm -v $PWD/bootcfg:/var/lib/bootcfg:Z -v $PWD/bootcfg/groups/etcd-install:/var/lib/bootcfg/groups:Z quay.io/coreos/bootcfg:v0.3.0 -address=0.0.0.0:8080 -log-level=debug
