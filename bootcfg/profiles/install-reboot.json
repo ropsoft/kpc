@@ -5,7 +5,7 @@
     "kernel": "/assets/coreos/KPC_coreos_version/coreos_production_pxe.vmlinuz",
     "initrd": ["/assets/coreos/KPC_coreos_version/coreos_production_pxe_image.cpio.gz"],
     "cmdline": {
-      "coreos.config.url": "http://KPC_ignition_endpoint:8080/ignition?mac=${net0/mac:hexhyp}",
+      "coreos.config.url": "http://KPC_bootcfg_endpoint:8080/ignition?mac=${net0/mac:hexhyp}",
       "coreos.autologin": "",
       "coreos.first_boot": ""
     }
