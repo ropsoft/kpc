@@ -50,12 +50,46 @@ Recommended procedure:
     ```
   - Build container with IPMI tools:
     ```
-    cd KPC/dockerfiles/
+    cd KPC/
+    cd dockerfiles/
     docker build -t ipmitool ipmitool/
+    cd -
     ```
+  - Export environment vars to configure, and substitute those vars in
+    ```
+    # what channel to deploy to nodes
+    export KPC_coreos_channel=stable
+    find ./ -type f -exec sed -i -e "s/KPC_coreos_channel/${KPC_coreos_channel}/" {} \;
+    
+    # what version within chosen channel
+    export KPC_coreos_version='1010.5.0'
+    find ./ -type f -exec sed -i -e "s/KPC_coreos_version/${KPC_coreos_version}/" {} \;
+    
+    # used both as-named and for image base url option of coreos-install
+    export KPC_bootcfg_endpoint='10.101.10.16'
+    find ./ -type f -exec sed -i -e "s/KPC_bootcfg_endpoint/${KPC_bootcfg_endpoint}/" {} \;
+
+    # with a little trial and error you should be able to pass a list if you want
+    export KPC_ssh_authorized_keys='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDGdByTgSVHq.......'
+    # sed delimiter changed to avoid escaping '/'
+    find ./ -type f -exec sed -i -e "s|KPC_ssh_authorized_keys|${KPC_ssh_authorized_keys}|" {} \;
+
+    # create a token to bootstrap etcd - remember to set size correctly
+    export KPC_discovery_token="$(curl -w "\n" 'https://discovery.etcd.io/new?size=3')"
+    # sed delimiter changed to avoid escaping '/'
+    find ./ -type f -exec sed -i -e "s|KPC_discovery_token|${KPC_discovery_token}|" {} \;
+
+    # a hint on how to find which IP etcd should use for some options
+    # NOTE: This ends up used as regex; periods are not literal. This is lesser evil than esacping them here.
+    # Should be ok as long as no two are adjacent for some reason, like "10..10.10."
+    # (i.e.: the single character they match should always be a literal '.')
+    export KPC_private_subnet_hint="10.101.10."
+    find ./ -type f -exec sed -i -e "s/KPC_private_subnet_hint/${KPC_private_subnet_hint}/" {} \;
+    ```
+
   - Get CoreOS image assets:
     ```
-    c
+    ./bootcfg/scripts/get-coreos "${KPC_coreos_channel}" "${KPC_coreos_version}" ./bootcfg/assets
     ```
   - Start dnsmasq and bootcfg containers:
     ```
