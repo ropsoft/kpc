@@ -2,7 +2,7 @@
 ignition_version: 1
 systemd:
   units:
-    - name: "metadata-kpc.service",
+    - name: metadata-kpc.service
       contents: |
          [Unit]
          Description=Custom metadata agent for KPC
