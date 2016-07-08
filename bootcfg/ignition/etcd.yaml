@@ -2,17 +2,35 @@
 ignition_version: 1
 systemd:
   units:
+    - name: "metadata-kpc.service",
+      contents: |
+         [Unit]
+         Description=Custom metadata agent for KPC
+         
+         [Service]
+         Type=oneshot
+         Environment=OUTPUT=/run/metadata/KPC-custom-metadata
+         ExecStart=/usr/bin/mkdir --parent /run/metadata
+         ExecStart=/usr/bin/bash -c 'echo "ETCD_NODE_NAME=$(cat /dev/urandom | tr -dc 'a-z0-9' | head -c9)" > ${OUTPUT}'
+         ExecStart=/usr/bin/bash -c 'echo "COREOS_PRIVATE_IPV4=$(ip a | grep -o inet\ KPC_subnet_hint[0-9]* | grep -F KPC_subnet_hint | cut -d\  -f2)" >> ${OUTPUT}'
     - name: etcd2.service
       enable: true
       dropins:
         - name: metadata.conf
           contents: |
+            [Unit]
+            Requires=metadata-kpc.service
+            After=metadata-kpc.service
+            
             [Service]
+            EnvironmentFile=/run/metadata/KPC-custom-metadata
+            ExecStart=
             ExecStart=/usr/bin/etcd2 \
-              --advertise-client-urls=http://0.0.0.0:2379 \
-              --initial-advertise-peer-urls=http://0.0.0.0:2380 \
+              --name=${ETCD_NODE_NAME} \
+              --advertise-client-urls=http://${COREOS_PRIVATE_IPV4}:2379 \
+              --initial-advertise-peer-urls=http://${COREOS_PRIVATE_IPV4}:2380 \
               --listen-client-urls=http://0.0.0.0:2379 \
-              --listen-peer-urls=http://0.0.0.0:2380 \
+              --listen-peer-urls=http://${COREOS_PRIVATE_IPV4}:2380 \
               --discovery={{.etcd_discovery}}
     - name: docker.service
       dropins:
