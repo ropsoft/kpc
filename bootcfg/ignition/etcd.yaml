@@ -12,7 +12,7 @@ systemd:
          Environment=OUTPUT=/run/metadata/KPC-custom-metadata
          ExecStart=/usr/bin/mkdir --parent /run/metadata
          ExecStart=/usr/bin/bash -c 'echo "ETCD_NODE_NAME=$(cat /dev/urandom | tr -dc 'a-z0-9' | head -c9)" > ${OUTPUT}'
-         ExecStart=/usr/bin/bash -c 'echo "COREOS_PRIVATE_IPV4=$(ip a | grep -o inet\ KPC_subnet_hint[0-9]* | grep -F KPC_subnet_hint | cut -d\  -f2)" >> ${OUTPUT}'
+         ExecStart=/usr/bin/bash -c 'echo "COREOS_PRIVATE_IPV4=$(ip a | grep -o inet\ {{.coreos_private_subnet_hint}}[0-9]* | cut -d\  -f2)" >> ${OUTPUT}'
     - name: etcd2.service
       enable: true
       dropins:
