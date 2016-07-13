@@ -40,22 +40,29 @@ Recommended procedure:
   - Find the device name of the disk you set the deployer to boot to, using `sudo fdisk -l` or similar. The example coreos-install command below assumes you found this device at '/dev/sda'.
   - If you need to configure a static DHCP lease in your router for your deployer node this is a good time to do it, so that you get the new IP when the system reboots.
   - Run coreos-install to install to disk:
+
     ```
     sudo coreos-install -d /dev/sda -C stable -c ~/cloud-config.yaml
     sudo reboot
     ```
+
   - Check out this repo:
+
     ```
     git clone https://github.com/ropsoft/KPC.git
     ```
+
   - Build container with IPMI tools:
+
     ```
     cd KPC/
     cd dockerfiles/
     docker build -t ipmitool ipmitool/
     cd -
     ```
+
   - Export environment vars to configure, and substitute those vars in
+
     ```
     # what channel to deploy to nodes
     export KPC_coreos_channel=stable
@@ -88,10 +95,13 @@ Recommended procedure:
     ```
 
   - Get CoreOS image assets:
+
     ```
     ./bootcfg/scripts/get-coreos "${KPC_coreos_channel}" "${KPC_coreos_version}" ./bootcfg/assets
     ```
+
   - Start dnsmasq and bootcfg containers. Check the value of --dhcp-range on second command:
+
     ```
     docker run -p 8080:8080 --rm -v $PWD/bootcfg:/var/lib/bootcfg:Z -v $PWD/bootcfg/groups/etcd-install:/var/lib/bootcfg/groups:Z quay.io/coreos/bootcfg:v0.3.0 -address=0.0.0.0:8080 -log-level=debug
     docker run --net=host --rm --cap-add=NET_ADMIN quay.io/coreos/dnsmasq -d -q --dhcp-range=10.101.10.1,proxy,255.255.255.0 --enable-tftp --tftp-root=/var/lib/tftpboot --dhcp-userclass=set:ipxe,iPXE --pxe-service=tag:#ipxe,x86PC,"PXE chainload to iPXE",undionly.kpxe --pxe-service=tag:ipxe,x86PC,"iPXE",http://"${KPC_bootcfg_endpoint}":8080/boot.ipxe --log-queries --log-dhcp
