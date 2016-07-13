@@ -22,5 +22,7 @@ ADD post_pxe_hostprep.yml /root
 
 RUN chmod 755 /usr/local/share/kolla/ansible/inventory/etcd_inv.py
 
+ENV ETCD_INI_PATH /root/etcd.ini
+
 ENTRYPOINT ["/bin/sh", "-c"]
 CMD ["bash -l"]
