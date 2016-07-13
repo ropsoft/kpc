@@ -34,7 +34,7 @@ Recommended procedure:
             - name: 50-insecure-registry.conf
               content: |
                 [Service]
-                Environment='DOCKER_OPTS=--insecure-registry="10.101.10.16:5000"'
+                Environment='DOCKER_OPTS=--insecure-registry="10.101.0.15:5000"'
           command: restart
     ```  
   - Find the device name of the disk you set the deployer to boot to, using `sudo fdisk -l` or similar. The example coreos-install command below assumes you found this device at '/dev/sda'.
@@ -72,7 +72,7 @@ Recommended procedure:
     find ./ -type f -exec sed -i -e "s/KPC_coreos_version/${KPC_coreos_version}/" {} \;
     
     # used both as-named and for image base url option of coreos-install
-    export KPC_bootcfg_endpoint='10.101.10.16'
+    export KPC_bootcfg_endpoint='10.101.0.15'
     find ./ -type f -exec sed -i -e "s/KPC_bootcfg_endpoint/${KPC_bootcfg_endpoint}/" {} \;
 
     # with a little trial and error you should be able to pass a list if you want
@@ -87,9 +87,9 @@ Recommended procedure:
 
     # a hint on how to find which IP etcd should use for some options
     # NOTE: This ends up used as regex; periods are not literal. This is lesser evil than esacping them here.
-    # Should be ok as long as no two are adjacent for some reason, like "10..10.10."
+    # Should be ok as long as no two are adjacent for some reason, like "10..10.0."
     # (i.e.: the single character they match should always be a literal '.')
-    export KPC_private_subnet_hint="10.101.10."
+    export KPC_private_subnet_hint="10.101.0."
     find ./ -type f -exec sed -i -e "s/KPC_private_subnet_hint/${KPC_private_subnet_hint}/" {} \;
     ```
 
@@ -103,5 +103,26 @@ Recommended procedure:
 
     ```
     docker run -d -p 8080:8080 -v $PWD/bootcfg:/var/lib/bootcfg:Z -v $PWD/bootcfg/groups/etcd-install:/var/lib/bootcfg/groups:Z quay.io/coreos/bootcfg:v0.3.0 -address=0.0.0.0:8080 -log-level=debug
-    docker run -d --net=host --cap-add=NET_ADMIN quay.io/coreos/dnsmasq -d -q --dhcp-range=10.101.10.1,proxy,255.255.255.0 --enable-tftp --tftp-root=/var/lib/tftpboot --dhcp-userclass=set:ipxe,iPXE --pxe-service=tag:#ipxe,x86PC,"PXE chainload to iPXE",undionly.kpxe --pxe-service=tag:ipxe,x86PC,"iPXE",http://"${KPC_bootcfg_endpoint}":8080/boot.ipxe --log-queries --log-dhcp
+    docker run -d --net=host --cap-add=NET_ADMIN quay.io/coreos/dnsmasq -d -q --dhcp-range=10.101.0.1,proxy,255.255.255.0 --enable-tftp --tftp-root=/var/lib/tftpboot --dhcp-userclass=set:ipxe,iPXE --pxe-service=tag:#ipxe,x86PC,"PXE chainload to iPXE",undionly.kpxe --pxe-service=tag:ipxe,x86PC,"iPXE",http://"${KPC_bootcfg_endpoint}":8080/boot.ipxe --log-queries --log-dhcp
+    ```
+
+  - Configure the BIOS of all target hosts to boot from the hard disk the OS will be installed to, then let the hosts idle (on "no boot media found" screen, or on their last-installed OS [assuming it wasn't running a DHCP server!], or etc.).
+  - Fire up the ipmitool container:
+
+    ```
+    docker run --net=host -it ipmitool bash
+    ```
+
+  - Inside the container use ipmitool to set the hosts to boot one time from the network, then restart them. This example assumes 3 hosts and IPMI creditials of ADMIN/ADMIN, which you should substitute for your actual credentials:
+
+    ```
+    IPMI_USER='ADMIN'
+    IPMI_PASS='ADMIN'
+    ipmitool -H 10.100.0.95 -U "${IPMI_USER}" -P "${IPMI_PASS}" chassis bootdev pxe
+    ipmitool -H 10.100.0.96 -U "${IPMI_USER}" -P "${IPMI_PASS}" chassis bootdev pxe
+    ipmitool -H 10.100.0.97 -U "${IPMI_USER}" -P "${IPMI_PASS}" chassis bootdev pxe
+    
+    ipmitool -H 10.100.0.95 -U "${IPMI_USER}" -P "${IPMI_PASS}" chassis power reset && sleep 10 && \
+    ipmitool -H 10.100.0.96 -U "${IPMI_USER}" -P "${IPMI_PASS}" chassis power reset && sleep 10 && \
+    ipmitool -H 10.100.0.97 -U "${IPMI_USER}" -P "${IPMI_PASS}" chassis power reset
     ```
