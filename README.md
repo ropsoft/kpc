@@ -55,9 +55,9 @@ Recommended procedure:
   - Build container with IPMI tools:
 
     ```
-    pushd KPC/dockerfiles/
+    cd KPC/dockerfiles/
     docker build -t ipmitool ipmitool/
-    popd
+    cd ..
     ```
 
   - Export environment vars to configure, and substitute those vars in
