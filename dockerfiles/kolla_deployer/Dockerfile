@@ -16,11 +16,12 @@ RUN apt-get -q -y update && \
     rm /usr/local/share/kolla/ansible/inventory/all-in-one && \
     rm /usr/local/share/kolla/ansible/inventory/multinode
 
-ADD etcd_dynamic_inventory.py /usr/local/share/kolla/ansible/inventory
+ADD etcd_inv.py /usr/local/share/kolla/ansible/inventory
+ADD etcd.ini /root
 ADD .bash_profile /root
 ADD post_pxe_hostprep.yml /root
 
-RUN chmod 755 /usr/local/share/kolla/ansible/inventory/etcd_dynamic_inventory.py
+RUN chmod 755 /usr/local/share/kolla/ansible/inventory/etcd_inv.py
 
 ENTRYPOINT ["/bin/sh", "-c"]
 CMD ["bash -l"]
