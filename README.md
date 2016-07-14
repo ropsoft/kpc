@@ -56,7 +56,7 @@ Recommended procedure:
 
     ```
     cd KPC/dockerfiles/
-    docker build -t ipmitool ipmitool/
+    docker build -t ipmitool ipmitools/
     cd ..
     ```
 
@@ -110,7 +110,7 @@ Recommended procedure:
   - Fire up the ipmitool container:
 
     ```
-    docker run --net=host -it ipmitool bash
+    docker run --net=host -it ipmitools bash
     ```
 
   - Inside the container use ipmitool to set the hosts to boot one time from the network, then restart them. This example assumes 3 hosts and IPMI creditials of ADMIN/ADMIN, which you should substitute for your actual credentials:
