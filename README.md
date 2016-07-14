@@ -126,6 +126,6 @@ Recommended procedure:
     for target in ${ipmi_targets[@]}; do ipmitool -H "${target}" -U "${ipmi_user}" -P "${ipmi_pass}" chassis bootdev pxe; done
     
     # reset
-    for target in ${ipmi_targets[@]}; do "${target}" -H 10.100.0.95 -U "${ipmi_user}" -P "${ipmi_pass}" chassis power reset && sleep 10; done
+    for target in ${ipmi_targets[@]}; do ipmitool -H "${target}" -U "${ipmi_user}" -P "${ipmi_pass}" chassis power reset && sleep 10; done
      && \
     ```
