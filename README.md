@@ -80,7 +80,7 @@ Recommended procedure:
     # sed delimiter changed to avoid escaping '/'
     find ./ -type f -exec sed -i -e "s|KPC_ssh_authorized_keys|${KPC_ssh_authorized_keys}|" {} \;
 
-    # create a token to bootstrap etcd - remember to include deployer node in count when setting size
+    # create a token to bootstrap etcd - remember to include deployer node in count when setting initial size
     export KPC_discovery_token="$(curl -w "\n" 'https://discovery.etcd.io/new?size=4')"
     # sed delimiter changed to avoid escaping '/'
     find ./ -type f -exec sed -i -e "s|KPC_discovery_token|${KPC_discovery_token}|" {} \;
