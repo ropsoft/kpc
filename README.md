@@ -56,7 +56,7 @@ Recommended procedure:
 
     ```
     cd KPC/dockerfiles/
-    docker build -t ipmitool ipmitools/
+    docker build -t ipmitools ipmitools/
     cd ..
     ```
 
