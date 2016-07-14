@@ -116,13 +116,16 @@ Recommended procedure:
   - Inside the container use ipmitool to set the hosts to boot one time from the network, then restart them. This example assumes 3 hosts and IPMI creditials of ADMIN/ADMIN, which you should substitute for your actual credentials:
 
     ```
-    IPMI_USER='ADMIN'
-    IPMI_PASS='ADMIN'
-    ipmitool -H 10.100.0.95 -U "${IPMI_USER}" -P "${IPMI_PASS}" chassis bootdev pxe
-    ipmitool -H 10.100.0.96 -U "${IPMI_USER}" -P "${IPMI_PASS}" chassis bootdev pxe
-    ipmitool -H 10.100.0.97 -U "${IPMI_USER}" -P "${IPMI_PASS}" chassis bootdev pxe
+    ipmi_user='ADMIN'
+    ipmi_pass='ADMIN'
     
-    ipmitool -H 10.100.0.95 -U "${IPMI_USER}" -P "${IPMI_PASS}" chassis power reset && sleep 10 && \
-    ipmitool -H 10.100.0.96 -U "${IPMI_USER}" -P "${IPMI_PASS}" chassis power reset && sleep 10 && \
-    ipmitool -H 10.100.0.97 -U "${IPMI_USER}" -P "${IPMI_PASS}" chassis power reset
+    # find hosts listening for IPMI on the IPMI network
+    ipmi_targets=( $(nmap -p 623 -oG - 10.100.0.1-254 | grep 623/open | cut -d\  -f2) )
+
+    # set to one-time PXE-boot
+    for target in ${ipmi_targets[@]}; do ipmitool -H "${target}" -U "${ipmi_user}" -P "${ipmi_pass}" chassis bootdev pxe; done
+    
+    # reset
+    for target in ${ipmi_targets[@]}; do "${target}" -H 10.100.0.95 -U "${ipmi_user}" -P "${ipmi_pass}" chassis power reset && sleep 10; done
+     && \
     ```
