@@ -136,4 +136,7 @@ Recommended procedure:
     ```
     # add deployer node as an etcd proxy, to get access to inventory data
     etcd2 --proxy on --listen-client-urls http://127.0.0.1:3379 --discovery "${KPC_discovery_token}"
+    
+    # view etcd cluster health, if desired
+    etcdctl --endpoints "http://127.0.0.1:3379" cluster-health
     ```
