@@ -2,30 +2,36 @@
 ignition_version: 1
 systemd:
   units:
-    - name: metadata-kpc.service
+    - name: ip-metadata-kpc.service
       contents: |
          [Unit]
          Wants=network-online.target
          After=network-online.target
-         Description=Custom metadata agent for KPC
+         Description=Custom IP metadata agent for KPC
          
          [Service]
          Type=oneshot
-         Environment=OUTPUT=/run/metadata/KPC-custom-metadata
+         Environment=OUTPUT=/run/metadata/KPC-custom-ip-metadata
          ExecStart=/usr/bin/mkdir --parent /run/metadata
          ExecStart=/usr/bin/bash -c 'echo "ETCD_NODE_NAME=$(cat /dev/urandom | tr -dc 'a-z0-9' | head -c9)" > ${OUTPUT}'
          ExecStart=/usr/bin/bash -c 'echo "COREOS_PRIVATE_IPV4=$(ip a | grep -o inet\ {{.coreos_private_subnet_hint}}[0-9]* | cut -d\  -f2)" >> ${OUTPUT}'
+#    - name: locksmithd.service
+#      dropins:
+#        - name: 40-ignition.conf
+#          contents: |
+#            [Service]
+#            ExecStartPre=/usr/bin/bash -c '/usr/bin/systemctl set-environment LOCKSMITHD_ENDPOINT=$( etcdctl --debug --endpoints 'http://127.0.0.1:3379' member list 2>&1 | sed -ne 's|^got endpoints(\([^)]*\)) after sync|\1|p' )'
     - name: etcd2.service
       enable: true
       dropins:
-        - name: metadata.conf
+        - name: 50-metadata.conf
           contents: |
             [Unit]
-            Requires=metadata-kpc.service
-            After=metadata-kpc.service
+            Requires=ip-metadata-kpc.service
+            After=ip-metadata-kpc.service
             
             [Service]
-            EnvironmentFile=/run/metadata/KPC-custom-metadata
+            EnvironmentFile=/run/metadata/KPC-custom-ip-metadata
             ExecStart=
             # note non-standard etcd2 ports
             # this unit file was written for use with OpenStack Kolla, which may launch its own etcd2
