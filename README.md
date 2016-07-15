@@ -107,7 +107,7 @@ Recommended procedure:
     ```
 
   - Configure the BIOS of all target hosts to boot from the hard disk the OS will be installed to, then let the hosts idle (on "no boot media found" screen, or on their last-installed OS [assuming it wasn't running a DHCP server!], or etc.).
-  - Fire up the ipmitool container:
+  - Fire up the ipmitools container:
 
     ```
     docker run --net=host -it ipmitools bash
