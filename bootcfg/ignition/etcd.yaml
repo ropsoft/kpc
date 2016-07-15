@@ -15,12 +15,12 @@ systemd:
          ExecStart=/usr/bin/mkdir --parent /run/metadata
          ExecStart=/usr/bin/bash -c 'echo "ETCD_NODE_NAME=$(cat /dev/urandom | tr -dc 'a-z0-9' | head -c9)" > ${OUTPUT}'
          ExecStart=/usr/bin/bash -c 'echo "COREOS_PRIVATE_IPV4=$(ip a | grep -o inet\ {{.coreos_private_subnet_hint}}[0-9]* | cut -d\  -f2)" >> ${OUTPUT}'
-#    - name: locksmithd.service
-#      dropins:
-#        - name: 40-ignition.conf
-#          contents: |
-#            [Service]
-#            ExecStartPre=/usr/bin/bash -c '/usr/bin/systemctl set-environment LOCKSMITHD_ENDPOINT=$( etcdctl --debug --endpoints 'http://127.0.0.1:3379' member list 2>&1 | sed -ne 's|^got endpoints(\([^)]*\)) after sync|\1|p' )'
+    - name: locksmithd.service
+      dropins:
+        - name: 40-ignition.conf
+          contents: |
+            [Service]
+            ExecStartPre=/usr/bin/bash -c '/usr/bin/systemctl set-environment LOCKSMITHD_ENDPOINT=$( etcdctl --debug --endpoints 'http://127.0.0.1:3379' member list 2>&1 | sed -ne 's|^got endpoints(\([^)]*\)) after sync|\1|p' ) && echo ${LOCKSMITHD_ENDPOINT} /tmp/sdlfjvnn'
     - name: etcd2.service
       enable: true
       dropins:
