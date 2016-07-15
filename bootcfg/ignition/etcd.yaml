@@ -27,12 +27,14 @@ systemd:
             [Service]
             EnvironmentFile=/run/metadata/KPC-custom-metadata
             ExecStart=
+            # note non-standard etcd2 ports
+            # this unit file was written for use with OpenStack Kolla, which may launch its own etcd2
             ExecStart=/usr/bin/etcd2 \
               --name=${ETCD_NODE_NAME} \
-              --advertise-client-urls=http://${COREOS_PRIVATE_IPV4}:2379 \
-              --initial-advertise-peer-urls=http://${COREOS_PRIVATE_IPV4}:2380 \
-              --listen-client-urls=http://0.0.0.0:2379 \
-              --listen-peer-urls=http://${COREOS_PRIVATE_IPV4}:2380 \
+              --advertise-client-urls=http://${COREOS_PRIVATE_IPV4}:3379 \
+              --initial-advertise-peer-urls=http://${COREOS_PRIVATE_IPV4}:3380 \
+              --listen-client-urls=http://0.0.0.0:3379 \
+              --listen-peer-urls=http://${COREOS_PRIVATE_IPV4}:3380 \
               --discovery={{.etcd_discovery}}
     - name: docker.service
       dropins:
