@@ -127,4 +127,13 @@ Recommended procedure:
     
     # reset
     for target in ${ipmi_targets[@]}; do ipmitool -H "${target}" -U "${ipmi_user}" -P "${ipmi_pass}" chassis power reset && sleep 5; done
+    
+    exit
+    ```
+
+  - Run the following on the deployer to start etcd in proxy mode, to get target node info that nodes have posted into etcd
+
+    ```
+    # add deployer node as an etcd proxy, to get access to inventory data
+    etcd2 --proxy on --listen-client-urls http://127.0.0.1:3379 --discovery "${KPC_discovery_token}"
     ```
