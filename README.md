@@ -38,7 +38,7 @@ The vlan terminology used here is described in terms of "vlan is untagged for po
 
 ![](images/layout4.png)
 
-### SI Host Install
+### Deploy host install
 
 Get deployer node running on CoreOS that has been installed to disk.
 Recommended procedure:  
