@@ -1,5 +1,5 @@
 # KPC
-### OpenStack Kolla on PXE-booted CoreOS
+OpenStack Kolla on PXE-booted CoreOS
 
 ### Deployment layout and supporting infrastructure
 These instructions describe deploying Kolla to baremetal hosts running CoreOS, which have been PXE-booted from another CoreOS host (the deploy host).
