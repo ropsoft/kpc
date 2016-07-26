@@ -23,7 +23,7 @@ The vlan terminology used here is described in terms of "vlan is untagged for po
   - The IP addresses for the hosts in Ansible's inventory are in this network, and Kolla's management VIP is also chosen as an unused IP in this network (config option: 'kolla_internal_vip_address').
   - The NAT router handles DHCP on this network, though some devices like switches may be statically assigned if desired.
 
-![](layout4.png)
+![](images/layout2.png)
 
 2. A vlan for IPMI network.
   - If your hosts have dedicated IPMI NICs, the ports they plug into are untagged on the switch for this network.
@@ -31,12 +31,12 @@ The vlan terminology used here is described in terms of "vlan is untagged for po
   - Other ports are set as tagged for this network as-needed (such as the uplink to the NAT router).
   - DHCP for the IPMI network is provided by the NAT router (the existing test setup runs the DHCP server on a vlan interface added to the router for this network, so you may need more than a SOHO router to do this - Mikrotik RB450G in use here.)
 
-![](layout5.png)
+![](images/layout3.png)
 
 3. External/provider network access
   - At least one NIC on each host is configured to be used for external/provider network access (config option: 'kolla_external_vip_interface').
 
-![](layout6.png)
+![](images/layout4.png)
 
 ### SI Host Install
 
