@@ -15,15 +15,13 @@ The deploy host runs several containerized services:
    - The PXE options this dnsmasq service provides point to the "bootcfg" endpoint mentioned above. [The container's documentation](https://github.com/coreos/coreos-baremetal/tree/master/contrib/dnsmasq) and the [coreos-baremetal documentation](https://github.com/coreos/coreos-baremetal/blob/master/Documentation/network-setup.md#proxy-dhcp) have more information on this as well as other operating modes (no existing DHCP, existing reconfigurable DHCP, etc.).
  - Run interactively, is a container for executing kolla-ansible, build.py, etc. This documentation refers to this as the deploy container, which is running on the deploy host. This function is typically performed on the deploy host when using Kolla, but is more often run directly on the deploy host and not containerized.
 
-![](layout3.png)
-
 ### Layout of the physical network
 The vlan terminology used here is described in terms of "vlan is untagged for port" and/or "vlan is tagged for port(s)". This terminology is common on many vendor's hardware such as D-Link and Netgear, but has also been seen on some midrange Cisco Business switches. It is assumed that anyone using the (arguably more traditional) access/trunk terminology will translate this reference layout to their environment.
 
 1. A vlan for management network
   - This network has Internet access behind a NAT router.
   - The IP addresses for the hosts in Ansible's inventory are in this network, and Kolla's management VIP is also chosen as an unused IP in this network (config option: 'kolla_internal_vip_address').
-  - The MAAS Vagrant guest handles DHCP on this network. Hardware that needs an IP prior to the MAAS guest coming up (this far: the router, the switch, the physical deployment host, the MAAS VM itself) are statically assigned.
+  - The NAT router handles DHCP on this network, though some devices like switches may be statically assigned if desired.
 
 ![](layout4.png)
 
