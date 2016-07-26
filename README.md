@@ -2,17 +2,15 @@
 ## OpenStack Kolla on PXE-booted CoreOS
 
 ### Deployment layout and supporting infrastructure
-These instructions describe deploying Kolla to baremetal hosts running CoreOS, which have been PXE-booted from another CoreOS host (the deploy host). Most of the required supporting infrastructure (CoreOS's "bootcfg" network boot service, private Docker registry, etc.) are run inside docker containers on the deploy host, including kolla-ansible. The deploy host is not technically part of the deployment and can be shut down once it is completed. However, it should be preserved in case it is needed later for running Kolla upgrades or reconfigurations.
-
-It should be possible to apply this documentation to a handful of VirtualBox or VMware VMs instead (short of meeting typical network requirements to run OpenStack inside VMs [promiscuous virtual switches, if I recall correctly]).
+These instructions describe deploying Kolla to baremetal hosts running CoreOS, which have been PXE-booted from another CoreOS host (the deploy host). Most of the required supporting infrastructure (CoreOS's "bootcfg" network boot service, private Docker registry, etc.) are run inside docker containers on the deploy host, including kolla-ansible.
 
 ![](images/layout1.png)
 
-To boot the deploy host 
+The deploy host is not technically part of the deployment and can be shut down once it is completed. However, it should be preserved in case it is needed later for running Kolla upgrades or reconfigurations.
 
-A single bare metal host is deployed with Vagrant, Docker, and Virtualbox (or similar virtualization product for which there is a Vagrant provider [VMware Workstation, libvirt, etc.]). This host will be referred to simply as the SI (Supporting Infrastructure) host. This is not a Kolla or OpenStack term, and is only used in this repo. No OpenStack services run on the SI host and it does not have to stay online once the deployment is complete, but preserving its data is highly recommended to facilitate using Kolla to run upgrades later. Some things like MAAS's list of enrolled hosts are persistent and we pass this list as a dynamic inventory for Ansible to use with Kolla.
+It should be possible to apply this documentation to a handful of VirtualBox or VMware VMs instead (short of meeting typical network requirements to run OpenStack inside VMs [promiscuous virtual switches, if I recall correctly]).
 
-![](layout2.png)
+![](images/layout2.png)
 
 The deploy host runs several containerized services:
  - An instance of [CoreOS's bootcfg service](https://github.com/coreos/coreos-baremetal/blob/master/Documentation/bootcfg.md):
