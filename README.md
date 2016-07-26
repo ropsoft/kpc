@@ -1,5 +1,52 @@
 # KPC
-OpenStack Kolla on PXE-booted CoreOS
+## OpenStack Kolla on PXE-booted CoreOS
+
+### Deployment layout and supporting infrastructure
+These instructions describe deploying Kolla to baremetal hosts running CoreOS, which have been PXE-booted from another CoreOS host (the deploy host). Most of the required supporting infrastructure (CoreOS's "bootcfg" network boot service, private Docker registry, etc.) are run inside docker containers on the deploy host, including kolla-ansible. The deploy host is not technically part of the deployment and can be shut down once it is completed. However, it should be preserved in case it is needed later for running Kolla upgrades or reconfigurations.
+
+It should be possible to apply this documentation to a handful of VirtualBox or VMware VMs instead (short of meeting typical network requirements to run OpenStack inside VMs [promiscuous virtual switches, if I recall correctly]).
+
+![](images/layout1.png)
+
+To boot the deploy host 
+
+A single bare metal host is deployed with Vagrant, Docker, and Virtualbox (or similar virtualization product for which there is a Vagrant provider [VMware Workstation, libvirt, etc.]). This host will be referred to simply as the SI (Supporting Infrastructure) host. This is not a Kolla or OpenStack term, and is only used in this repo. No OpenStack services run on the SI host and it does not have to stay online once the deployment is complete, but preserving its data is highly recommended to facilitate using Kolla to run upgrades later. Some things like MAAS's list of enrolled hosts are persistent and we pass this list as a dynamic inventory for Ansible to use with Kolla.
+
+![](layout2.png)
+
+The deploy host runs several containerized services:
+ - An instance of [CoreOS's bootcfg service](https://github.com/coreos/coreos-baremetal/blob/master/Documentation/bootcfg.md):
+   - "bootcfg is an HTTP and gRPC service that renders signed Ignition configs, cloud-configs, network boot configs, and metadata to machines to create CoreOS clusters."
+ - An instance of CoreOS's dnsmasq container
+   - This documentation deploys this service such that it will co-exist with an existing DHCP server which is not serving PXE options or next-host options itself. The PXE options the service provides point to the "bootcfg" endpoint mentioned above. [The container's documentation](https://github.com/coreos/coreos-baremetal/blob/master/Documentation/network-setup.md#proxy-dhcp) has more information on this co-exist/proxy mode as well as other operating modes (no existing DHCP, existing reconfigurable DHCP, etc.).
+ - Run interactively is a container for executing kolla-ansible, build.py, etc. This documentation refers to this as the deploy container, which is running on the deploy host. This function is typically performed on the deploy host when using Kolla, but is more often run directly on the deploy host and not containerized.
+
+![](layout3.png)
+
+### Layout of the physical network
+The vlan terminology used here is described in terms of "vlan is untagged for port" and/or "vlan is tagged for port(s)". This terminology is common on many vendor's hardware such as D-Link and Netgear, but has also been seen on some midrange Cisco Business switches. It is assumed that anyone using the (arguably more traditional) access/trunk terminology will translate this reference layout to their environment.
+
+1. A vlan for management network
+  - This network has Internet access behind a NAT router.
+  - The IP addresses for the hosts in Ansible's inventory are in this network, and Kolla's management VIP is also chosen as an unused IP in this network (config option: 'kolla_internal_vip_address').
+  - The MAAS Vagrant guest handles DHCP on this network. Hardware that needs an IP prior to the MAAS guest coming up (this far: the router, the switch, the physical deployment host, the MAAS VM itself) are statically assigned.
+
+![](layout4.png)
+
+2. A vlan for IPMI network.
+  - If your hosts have dedicated IPMI NICs, the ports they plug into are untagged on the switch for this network.
+  - If your hosts have shared IPMI NICs, the ports they plug into are untagged for the NIC's primary function and the 
+  - Other ports are set as tagged for this network as-needed (such as the uplink to the NAT router).
+  - DHCP for the IPMI network is provided by the NAT router (the existing test setup runs the DHCP server on a vlan interface added to the router for this network, so you may need more than a SOHO router to do this - Mikrotik RB450G in use here.)
+
+![](layout5.png)
+
+3. External/provider network access
+  - At least one NIC on each host is configured to be used for external/provider network access (config option: 'kolla_external_vip_interface').
+
+![](layout6.png)
+
+### SI Host Install
 
 Get deployer node running on CoreOS that has been installed to disk.
 Recommended procedure:  
