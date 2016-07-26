@@ -42,7 +42,7 @@ The vlan terminology used here is described in terms of "vlan is untagged for po
 Get deploy host running on CoreOS that has been installed to disk.
 Recommended procedure:  
   - Download the CoreOS ISO and copy to USB flash drive with 'dd' or one of the many generic ISO to USB helper tools (Rufus [highly recommended on Windows], UNetbootin, Universal USB Installer, etc.).
-    - **\*\*IMPORTANT\*\***: The CoreOS version and release channel of the ISO used to boot the deploy host will be the version and channel used on the nodes. Overrides for this may be added at a later date.
+    - _**IMPORTANT**_: The CoreOS version and release channel of the ISO used to boot the deploy host will be the version and channel used on the nodes. Overrides for this may be added at a later date.
   - Set deployer node to boot from the disk you will install to, then perform a one-time boot from the flash drive to bring up a live-booted (to RAM) CoreOS system and automatically log you in as '**core**'.
   - Set a password for the **core** user:  
     ```
