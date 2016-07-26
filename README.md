@@ -1,27 +1,27 @@
 # KPC - OpenStack Kolla on PXE-booted CoreOS
 
 ### Deployment layout and supporting infrastructure
-These instructions describe deploying Kolla to baremetal hosts running CoreOS, which have been PXE-booted from another CoreOS host (the deploy host).
+This document describes deploying Kolla to baremetal hosts running CoreOS, which have been PXE-booted from another CoreOS host (the deploy host).
 
 ![](images/layout1.png)
 
-Most of the required supporting infrastructure (CoreOS's "bootcfg" network boot service, private Docker registry, etc.) are run inside docker containers on the deploy host, including kolla-ansible. The deploy host is not technically part of the deployment and can be shut down once it is completed. However, it should be preserved in case it is needed later for running Kolla upgrades or reconfigurations.
+Most of the required supporting infrastructure (CoreOS's "bootcfg" network boot service, private Docker registry, etc.) are run inside docker containers on the deploy host, including kolla-ansible. The deploy host is not technically part of the deployment and can be shut down once it is completed. However, the host should be preserved in case it is needed later for running Kolla upgrades or reconfigurations.
 
 The deploy host runs several containerized services:
  - An instance of [CoreOS's bootcfg service](https://github.com/coreos/coreos-baremetal/blob/master/Documentation/bootcfg.md):
    - "bootcfg is an HTTP and gRPC service that renders signed Ignition configs, cloud-configs, network boot configs, and metadata to machines to create CoreOS clusters."
  - An instance of CoreOS's dnsmasq container
-   - This documentation deploys this service such that it will co-exist with an existing DHCP server which is not serving any PXE options. This is referred to as proxy DHCP: "A proxy DHCP server is defined by the PXE specification as a server which sends auxiliary boot information to clients, like the boot filename, tftp server or rootpath, but leaves the task of IP leasing to the normal DHCP server."
-   - The PXE options this dnsmasq service provides point to the "bootcfg" endpoint mentioned above. [The container's documentation](https://github.com/coreos/coreos-baremetal/tree/master/contrib/dnsmasq) and the [coreos-baremetal documentation](https://github.com/coreos/coreos-baremetal/blob/master/Documentation/network-setup.md#proxy-dhcp) have more information on this as well as other operating modes (no existing DHCP, existing reconfigurable DHCP, etc.).
- - Run interactively, is a container for executing kolla-ansible, build.py, etc. This documentation refers to this as the deploy container, which is running on the deploy host. Although this function is typically performed on the deploy host when using Kolla, it is typically run directly on the deploy host and not containerized.
+   - This service is deployed such that it will co-exist with an existing DHCP server which is not serving any PXE options. This is referred to as proxy DHCP: "A proxy DHCP server is defined by the PXE specification as a server which sends auxiliary boot information to clients, like the boot filename, tftp server or rootpath, but leaves the task of IP leasing to the normal DHCP server."
+   - The dnsmasq service chainloads PXE clients to iPXE, network-boots CoreOS on them, and tells them to query the "bootcfg" endpoint mentioned above for their configuration. [The container image's documentation](https://github.com/coreos/coreos-baremetal/tree/master/contrib/dnsmasq) and the [coreos-baremetal documentation](https://github.com/coreos/coreos-baremetal/blob/master/Documentation/network-setup.md#proxy-dhcp) have more information on this and other operating modes (no existing DHCP, existing reconfigurable DHCP, etc.).
+ - A container that is run interactively for executing kolla-ansible, build.py, etc. It is typical in Kolla that these tasks are run on a deploy host, but they are typically run directly on the deploy host and not containerized. So the terminology used here will refer to this as the deploy container, which is run on the deploy host.
 
 ### Layout of the physical network
 The vlan terminology used here is described in terms of "vlan is untagged for port" and/or "vlan is tagged for port(s)". This terminology is common on many vendor's hardware such as D-Link and Netgear, and even some midrange Cisco Business switches. It is assumed that anyone using the (arguably more traditional) access/trunk terminology will translate this reference layout to their environment.
 
 **1. A vlan for management network**
-  - This network has Internet access behind a NAT router.
-  - The IP addresses for the hosts in Ansible's inventory are in this network, and Kolla's management VIP is also chosen as an unused IP in this network (config option: 'kolla_internal_vip_address').
-  - The NAT router handles DHCP on this network, though some devices like switches may be statically assigned if desired.
+  - This network has Internet access behind a NAT router, and is the network bare metal hosts access the Internet on.
+  - The host's IP addresses on this network are how Ansible will connect to them, and Kolla's management VIP (where OpenStack management APIs will end up) is also chosen as an unused IP in this network (config option: 'kolla_internal_vip_address').
+  - The NAT router handles DHCP on this network, though some devices like switches may still be statically assigned outside of the DHCP range if desired.
 
 ![](images/layout2.png)
 **2. A vlan for IPMI network.**
