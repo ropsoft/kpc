@@ -24,15 +24,13 @@ The vlan terminology used here is described in terms of "vlan is untagged for po
   - The NAT router handles DHCP on this network, though some devices like switches may be statically assigned if desired.
 
 ![](images/layout2.png)
-
 2. A vlan for IPMI network.
   - If your hosts have dedicated IPMI NICs, the ports they plug into are untagged on the switch for this network.
-  - If your hosts have shared IPMI NICs, the ports they plug into are untagged for the NIC's primary function and the 
+  - If your hosts have shared IPMI NICs, the ports they plug into are untagged for the NIC's primary function and the IPMI cards should have that vlan id set in their configs.
   - Other ports are set as tagged for this network as-needed (such as the uplink to the NAT router).
   - DHCP for the IPMI network is provided by the NAT router (the existing test setup runs the DHCP server on a vlan interface added to the router for this network, so you may need more than a SOHO router to do this - Mikrotik RB450G in use here.)
 
 ![](images/layout3.png)
-
 3. External/provider network access
   - At least one NIC on each host is configured to be used for external/provider network access (config option: 'kolla_external_vip_interface').
 
