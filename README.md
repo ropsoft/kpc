@@ -29,7 +29,7 @@ The vlan terminology used here is described in terms of "vlan is untagged for po
   - If your hosts have dedicated IPMI NICs, the ports they plug into should be untagged on the switch for this network.
   - If your hosts have shared IPMI NICs, the ports they plug into should be untagged for the NIC's primary function (management, storage-net, etc.) and this vlan id should be set in the IPMI configs.
   - Other ports are set as tagged for this network as-needed (such as the uplink to the NAT router).
-  - DHCP for the IPMI network is also provided by the NAT router (The existing test lab runs this as a second DHCP server limited to the router's interface to this vlan (the test lab uses a Mikrotik RB450G). If your primary router will not do this, you could instead use a second NAT router which has no WAN uplink to provide DHCP to this network, by plugging the router into a port that is untagged for this network.)
+  - Assuming the case of dedicated IPMI NICs, DHCP for the IPMI network is provided by a second DHCP server on the NAT router that runs on its interface to this vlan (the test lab uses a Mikrotik RB450G). If your router cannot run both networks in this way you could instead use a second NAT router with nothing plugged in to the Internet/WAN port to provide DHCP to this network, by plugging the LAN side of the router into a port that is untagged for this network and configuring it for the correct IP range. You could also statically assign IPs to the IPMI NICs.
 
 ![](images/layout3.png)
 **3. External/provider network access**
