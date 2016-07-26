@@ -2,15 +2,11 @@
 ## OpenStack Kolla on PXE-booted CoreOS
 
 ### Deployment layout and supporting infrastructure
-These instructions describe deploying Kolla to baremetal hosts running CoreOS, which have been PXE-booted from another CoreOS host (the deploy host). Most of the required supporting infrastructure (CoreOS's "bootcfg" network boot service, private Docker registry, etc.) are run inside docker containers on the deploy host, including kolla-ansible.
-
-![](images/layout1.png)
-
-The deploy host is not technically part of the deployment and can be shut down once it is completed. However, it should be preserved in case it is needed later for running Kolla upgrades or reconfigurations.
+These instructions describe deploying Kolla to baremetal hosts running CoreOS, which have been PXE-booted from another CoreOS host (the deploy host). Most of the required supporting infrastructure (CoreOS's "bootcfg" network boot service, private Docker registry, etc.) are run inside docker containers on the deploy host, including kolla-ansible. The deploy host is not technically part of the deployment and can be shut down once it is completed. However, it should be preserved in case it is needed later for running Kolla upgrades or reconfigurations.
 
 It should be possible to apply this documentation to a handful of VirtualBox or VMware VMs instead (short of meeting typical network requirements to run OpenStack inside VMs [promiscuous virtual switches, if I recall correctly]).
 
-![](images/layout2.png)
+![](images/layout1.png)
 
 The deploy host runs several containerized services:
  - An instance of [CoreOS's bootcfg service](https://github.com/coreos/coreos-baremetal/blob/master/Documentation/bootcfg.md):
