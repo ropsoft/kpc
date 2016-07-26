@@ -13,7 +13,7 @@ The deploy host runs several containerized services:
  - An instance of CoreOS's dnsmasq container
    - This documentation deploys this service such that it will co-exist with an existing DHCP server which is not serving any PXE options. This is referred to as proxy DHCP: "A proxy DHCP server is defined by the PXE specification as a server which sends auxiliary boot information to clients, like the boot filename, tftp server or rootpath, but leaves the task of IP leasing to the normal DHCP server."
    - The PXE options this dnsmasq service provides point to the "bootcfg" endpoint mentioned above. [The container's documentation](https://github.com/coreos/coreos-baremetal/tree/master/contrib/dnsmasq) and the [coreos-baremetal documentation](https://github.com/coreos/coreos-baremetal/blob/master/Documentation/network-setup.md#proxy-dhcp) have more information on this as well as other operating modes (no existing DHCP, existing reconfigurable DHCP, etc.).
- - Run interactively is a container for executing kolla-ansible, build.py, etc. This documentation refers to this as the deploy container, which is running on the deploy host. This function is typically performed on the deploy host when using Kolla, but is more often run directly on the deploy host and not containerized.
+ - Run interactively, is a container for executing kolla-ansible, build.py, etc. This documentation refers to this as the deploy container, which is running on the deploy host. This function is typically performed on the deploy host when using Kolla, but is more often run directly on the deploy host and not containerized.
 
 ![](layout3.png)
 
