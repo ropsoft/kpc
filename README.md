@@ -18,20 +18,20 @@ The deploy host runs several containerized services:
 ### Layout of the physical network
 The vlan terminology used here is described in terms of "vlan is untagged for port" and/or "vlan is tagged for port(s)". This terminology is common on many vendor's hardware such as D-Link and Netgear, but has also been seen on some midrange Cisco Business switches. It is assumed that anyone using the (arguably more traditional) access/trunk terminology will translate this reference layout to their environment.
 
-1. A vlan for management network
+**1. A vlan for management network**
   - This network has Internet access behind a NAT router.
   - The IP addresses for the hosts in Ansible's inventory are in this network, and Kolla's management VIP is also chosen as an unused IP in this network (config option: 'kolla_internal_vip_address').
   - The NAT router handles DHCP on this network, though some devices like switches may be statically assigned if desired.
 
 ![](images/layout2.png)
-2. A vlan for IPMI network.
+**2. A vlan for IPMI network.**
   - If your hosts have dedicated IPMI NICs, the ports they plug into are untagged on the switch for this network.
   - If your hosts have shared IPMI NICs, the ports they plug into are untagged for the NIC's primary function and the IPMI cards should have that vlan id set in their configs.
   - Other ports are set as tagged for this network as-needed (such as the uplink to the NAT router).
   - DHCP for the IPMI network is provided by the NAT router (the existing test setup runs the DHCP server on a vlan interface added to the router for this network, so you may need more than a SOHO router to do this - Mikrotik RB450G in use here.)
 
 ![](images/layout3.png)
-3. External/provider network access
+**3. External/provider network access**
   - At least one NIC on each host is configured to be used for external/provider network access (config option: 'kolla_external_vip_interface').
 
 ![](images/layout4.png)
