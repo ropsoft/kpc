@@ -47,7 +47,6 @@ systemd:
           contents: |
             [Service]
             Environment='DOCKER_OPTS=--insecure-registry="10.101.0.15:5000"'
-      command: restart
 {{ if .ssh_authorized_keys }}
 passwd:
   users:
