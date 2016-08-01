@@ -58,7 +58,7 @@ Follow these steps to live-boot the deploy host from CoreOS ISO then install to 
     ```
   - SSH to the host from your machine:
     ```
-    ssh -i ./local/path/to/key core@10.101.01.15
+    ssh -i ./local/path/to/key core@10.101.0.15
     ```
   - Check out this repo:
     ```
