@@ -7,7 +7,6 @@
   },
   "metadata": {
     "etcd_discovery": "KPC_discovery_token",
-    "coreos_private_subnet_hint": "KPC_private_subnet_hint",
     "ssh_authorized_keys": ["KPC_ssh_authorized_keys"]
   }
 }
