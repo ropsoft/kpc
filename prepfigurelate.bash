@@ -9,7 +9,7 @@ find ./ -type f -exec sed -i -e "s/KPC_coreos_version/${VERSION}/" {} \;
 # choose bootcfg endpoint and mgmt subnet hint
 # we assume IPv4, and that the CIDR mask is /24 or larger (that is, nodes have the same first 3 octets for their IP on this network)
 echo "Please choose the IP address that represents this host's interface to the management network:"
-select ipadr in "$(ip -4 -o addr show scope global | cut -d'\' -f1 | awk '{print $4}')"; do echo $ipadr selected; done
+select ipadr in $(ip -4 -o addr show scope global | awk '{print $4}'); do echo $ipadr selected; export THEIP="${ipadr}"; break; done
 
 #FIXME ##^^^don't do that, use SSH_CONNECTION env var
 
