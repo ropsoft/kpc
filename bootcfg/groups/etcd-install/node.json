@@ -6,7 +6,6 @@
     "os": "installed"
   },
   "metadata": {
-    "etcd_discovery": "KPC_discovery_token",
     "ssh_authorized_keys": ["KPC_ssh_authorized_keys"]
   }
 }
