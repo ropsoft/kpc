@@ -113,16 +113,14 @@ Follow these steps to live-boot the deploy host from CoreOS ISO then install to 
     cd ..
     ```
 
-  - Export environment vars to configure, and substitute those vars in
+  - Export environment vars then substitute those vars into templates and configs
 
     ```
-    # what channel to deploy to nodes
-    export KPC_coreos_channel=stable
-    find ./ -type f -exec sed -i -e "s/KPC_coreos_channel/${KPC_coreos_channel}/" {} \;
-    
-    # what version within chosen channel
-    export KPC_coreos_version='1010.5.0'
-    find ./ -type f -exec sed -i -e "s/KPC_coreos_version/${KPC_coreos_version}/" {} \;
+    # source files to determine OS channel and version
+    source /etc/coreos/update.conf
+    source /etc/os-release
+    find ./ -type f -exec sed -i -e "s/KPC_coreos_channel/${GROUP}/" {} \;
+    find ./ -type f -exec sed -i -e "s/KPC_coreos_version/${VERSION}/" {} \;
     
     # used both as-named and for image base url option of coreos-install
     export KPC_bootcfg_endpoint='10.101.0.15'
