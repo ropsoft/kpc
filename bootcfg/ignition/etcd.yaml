@@ -40,7 +40,7 @@ systemd:
               --initial-advertise-peer-urls=http://${COREOS_PRIVATE_IPV4}:3380 \
               --listen-client-urls=http://0.0.0.0:3379 \
               --listen-peer-urls=http://${COREOS_PRIVATE_IPV4}:3380 \
-              --discovery={{.etcd_discovery}}
+              --discovery=https://discovery.etcd.io/{{.request.query.etcd_discovery_id}}
     - name: docker.service
       dropins:
         - name: 50-insecure-registry.conf
