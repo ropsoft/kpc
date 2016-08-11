@@ -63,7 +63,11 @@ find ./bootcfg -type f -exec sed -i -e "s|KPC_ssh_authorized_keys|${KPC_ssh_auth
 
 
 # create a token to bootstrap etcd - remember to set size to the number of target nodes
-export KPC_discovery_token="$(curl -w "\n" 'https://discovery.etcd.io/new?size=3')"
+echo "Retrieving an etcd discovery token for installed nodes to bootstrap with"
+#FIXME need a more elegant way to set the cluster size
+export KPC_discovery_token="$(curl -w "\n" 'https://discovery.etcd.io/new?size=3' 2>/dev/null)"
+echo "Got token id ${KPC_discovery_token}"
+#FIXME error out if no token
 # sed delimiter changed to avoid escaping '/'
 find ./bootcfg -type f -exec sed -i -e "s|KPC_discovery_token|${KPC_discovery_token}|" {} \;
 
