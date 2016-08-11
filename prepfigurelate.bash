@@ -46,6 +46,12 @@ for key in "${pubkeys_pre[@]}"; do
         pubkeys+=("\"${key}\",")
     fi
 done
+
+if [[ ${#pubkeys[@]} < 1 ]]
+then
+    echo ' - NO KEYS (you may not be able to log in to booted nodes!!)'
+fi
+
 echo
 
 pubkeys_string_temp="${pubkeys[@]}"
