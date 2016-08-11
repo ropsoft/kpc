@@ -9,7 +9,7 @@ systemd:
         After=network-online.target
         [Service]
         Type=oneshot
-        ExecStart=/usr/bin/curl {{.ignition_endpoint}}?{{.query}}&os=installed&etcd_discovery_id=KPC_discovery_token&coreos_private_subnet_hint=KPC_private_subnet_hint -o ignition.json
+        ExecStart=/usr/bin/curl {{.ignition_endpoint}}?{{.query}}&os=installed&etcd_discovery_id=https://discovery.etcd.io/KPC_discovery_token&coreos_private_subnet_hint=KPC_private_subnet_hint -o ignition.json
         ExecStart=/usr/bin/coreos-install -d /dev/nvme0n1 -C {{.coreos_channel}} -V {{.coreos_version}} -i ignition.json {{if index . "baseurl"}}-b {{.baseurl}}{{end}}
         #ExecStart=/usr/bin/coreos-install -d /dev/nvme0n1 -C {{.coreos_channel}} -V {{.coreos_version}}
         ExecStart=/usr/bin/udevadm settle
