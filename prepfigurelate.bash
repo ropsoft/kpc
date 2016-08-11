@@ -71,3 +71,5 @@ echo "Got ${KPC_discovery_token}"
 # sed delimiter changed to avoid escaping '/'
 find ./bootcfg -type f -exec sed -i -e "s|KPC_discovery_token|${KPC_discovery_token##*/}|" {} \;
 
+echo "Downloading required coreos images using upstream get-coreos script"
+bootcfg/scripts/get-coreos "${GROUP}" "${VERSION}" ./bootcfg/assets
