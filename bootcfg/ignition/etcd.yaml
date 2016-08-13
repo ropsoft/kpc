@@ -20,8 +20,8 @@ systemd:
           contents: |
             [Service]
             # #FIXME the sleep in the ExecStartPre below needs a better fix.
-            # It exists because the etcdctl command needs more time to succeed but I
-            # hesitate to add unofficial ordering dependencies to the stock locksmithd unit
+            # It exists because the etcdctl command later in the line needs more time before it will 
+            # succeed and I hesitate to add unofficial unit dependencies to the stock locksmithd unit
             ExecStartPre=/usr/bin/bash -c 'sleep 20 && /usr/bin/systemctl set-environment LOCKSMITHD_ENDPOINT=$( etcdctl --debug --endpoints 'http://127.0.0.1:3379' member list 2>&1 | sed -ne "s|^got endpoints(\([^)]*\)) after sync|\1|p" )'
     - name: etcd2.service
       enable: true
