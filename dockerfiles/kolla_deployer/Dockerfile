@@ -5,9 +5,9 @@ RUN apt-get -q -y update && \
     apt-get -q -y install curl python-dev gcc libffi-dev libssl-dev inetutils-ping ntp vim wget && \
     curl https://bootstrap.pypa.io/get-pip.py | python && \
     curl -sSL https://get.docker.io | bash && \
-    pip install -U ansible==1.9.4 oauth docker-py && \
+    pip install -U ansible==1.9.4 oauth docker-py python-etcd && \
     git clone --branch stable/mitaka https://git.openstack.org/openstack/kolla && \
-    pip install python-etcd kolla/ && \
+    pip install kolla/ && \
     cp -r kolla/etc/kolla /etc/ && \
     kolla-genpwd && \
     # remove hosts (control01, network02, etc.) since we're using dynamic inventory... but preserve groups
