@@ -5,7 +5,8 @@
 # If not clean recommend a git reset (with a data loss warning), then exit 1
 
 # source some files to determine CoreOS channel and version, then sub them in
-source /etc/coreos/update.conf
+[ -e /usr/share/coreos/update.conf ] && source /usr/share/coreos/update.conf
+[ -e /etc/coreos/update.conf ] && source /etc/coreos/update.conf
 source /etc/os-release
 echo "This deploy host is booted to CoreOS ${VERSION} from the ${GROUP} release channel."
 echo " - Will download and deploy CoreOS ${VERSION} from release channel ${GROUP} to any target nodes needing install."
