@@ -3,7 +3,7 @@
   "name": "etcd Node",
   "profile": "etcd",
   "selector": {
-    "os": "installed"
+    "modekey": "installed"
   },
   "metadata": {
     "ssh_authorized_keys": [KPC_ssh_authorized_keys]
