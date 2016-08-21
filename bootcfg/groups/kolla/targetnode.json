@@ -1,7 +1,7 @@
 {
-  "id": "etcd",
-  "name": "etcd Node",
-  "profile": "etcd",
+  "id": "target-group",
+  "name": "Kolla Target Node Group",
+  "profile": "target-profile",
   "selector": {
     "modekey": "targetnode"
   },

@@ -1,0 +1,11 @@
+{
+  "id": "deployer-group",
+  "name": "Kolla bootcfg Deploy Host Group",
+  "profile": "deployer-profile",
+  "selector": {
+    "modekey": "deployhost"
+  },
+  "metadata": {
+    "ssh_authorized_keys": [KPC_ssh_authorized_keys]
+  }
+}

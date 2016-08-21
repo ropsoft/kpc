@@ -1,5 +1,0 @@
-{
-  "id": "etcd",
-  "name": "etcd",
-  "ignition_id": "etcd.yaml"
-}

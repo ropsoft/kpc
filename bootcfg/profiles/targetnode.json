@@ -1,0 +1,5 @@
+{
+  "id": "target-profile",
+  "name": "Kolla Target Node Profile",
+  "ignition_id": "targetnode.yaml"
+}

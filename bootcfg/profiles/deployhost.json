@@ -1,0 +1,5 @@
+{
+  "id": "deployer-profile",
+  "name": "Kolla bootcfg Deploy Host Profile",
+  "ignition_id": "deployhost.yaml"
+}
