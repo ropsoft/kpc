@@ -6,6 +6,8 @@
     "coreos_channel": "KPC_coreos_channel",
     "coreos_version": "KPC_coreos_version",
     "ignition_endpoint": "http://KPC_bootcfg_endpoint:8080/ignition",
+    "etcd_discovery_id": "KPC_discovery_token"
+    "coreos_private_subnet_hint": "KPC_private_subnet_hint"
     "baseurl": "http://KPC_bootcfg_endpoint:8080/assets/coreos",
     "ssh_authorized_keys": [KPC_ssh_authorized_keys]
   }
