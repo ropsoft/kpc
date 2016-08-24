@@ -1,17 +1,23 @@
 #!/bin/bash
 
-#FIXME
-# Require git working copy to be clean so we can template with immunity...
-# If not clean recommend a git reset (with a data loss warning), then exit 1
-
-# possible breakage if script is run via a symlink (which is not the case as-shipped)
-# the common pattern to resolve the actual path is ugly and very confusing and not worth covering this corner case
 this_script="$(basename $0)"
+
+if [[ "$(git rev-parse --show-toplevel)" != "${PWD}" ]]
+then
+    echo "ERROR: ${this_script} cannot continue"
+    echo "${this_script} must be run from the root of the kpc git repository as 'sudo -E ./script.bash'"
+    echo ""
+    echo "FIXME: add some notes on how this is determined in case it is flaky"
+    echo "formatting here is terrible"
+fi
 
 # source some files to determine CoreOS channel and version, then sub them in
 [ -e /usr/share/coreos/update.conf ] && source /usr/share/coreos/update.conf
 [ -e /etc/coreos/update.conf ] && source /etc/coreos/update.conf
 source /etc/os-release
+
+exit 0
+
 echo "This deploy host is booted to CoreOS ${VERSION} from the ${GROUP} release channel."
 echo " - Will download and deploy CoreOS ${VERSION} from release channel ${GROUP} to any target nodes needing install."
 grep -rlZ KPC_coreos_channel . | grep -zZv "${this_script}" | xargs -0 sed -i -e "s/KPC_coreos_channel/${GROUP}/"
@@ -79,4 +85,53 @@ grep -rlZ KPC_discovery_token . | grep -zZv "${this_script}" | xargs -0 sed -i -
 echo "Downloading required coreos images using upstream get-coreos script"
 bootcfg/scripts/get-coreos "${GROUP}" "${VERSION}" ./bootcfg/assets
 
+
+docker run -d -p 8080:8080 -v $PWD/bootcfg:/var/lib/bootcfg:Z \
+    -v $PWD/bootcfg/groups/etcd-install:/var/lib/bootcfg/groups:Z \
+    quay.io/coreos/bootcfg:v0.4.0 -address=0.0.0.0:8080 -log-level=debug
+
+read -r -p "Are you sure you want to run coreos-install and ERASE ${device}? [y/N] " response
+response=${response,,}    # tolower
+if [[ $response =~ ^(yes|y)$ ]]
+
+
+# most of the rest of this script is code borrowed from the upstream coreos-install script
+
+error_output() {
+    echo "Error: return code $? from $BASH_COMMAND" >&2
+}
+
+WORKDIR=$(mktemp --tmpdir -d coreos-install.XXXXXXXXXX)
+trap "error_output ; rm -rf '${WORKDIR}'" EXIT
+
+# The ROOT partition should be #9 but make no assumptions here!
+# Also don't mount by label directly in case other devices conflict.
+ROOT_DEV=$(blkid -t "LABEL=ROOT" -o device "${DEVICE}"*)
+
+mkdir -p "${WORKDIR}/rootfs"
+case $(blkid -t "LABEL=ROOT" -o value -s TYPE "${ROOT_DEV}") in
+  "btrfs") mount -t btrfs -o subvol=root "${ROOT_DEV}" "${WORKDIR}/rootfs" ;;
+  *)       mount "${ROOT_DEV}" "${WORKDIR}/rootfs" ;;
+esac
+trap "error_output ; umount '${WORKDIR}/rootfs' && rm -rf '${WORKDIR}'" EXIT
+
+if [[ -n "${CLOUDINIT}" ]]; then
+  echo "Installing cloud-config..."
+  mkdir -p "${WORKDIR}/rootfs/var/lib/coreos-install"
+  cp "${CLOUDINIT}" "${WORKDIR}/rootfs/var/lib/coreos-install/user_data"
+fi
+
+if [[ -n "${COPY_NET}" ]]; then
+  echo "Copying network units to root partition."
+  # Copy the entire directory, do not overwrite anything that might exist there, keep permissions, and copy the resolve.conf link as a file.
+  cp --recursive --no-clobber --preserve --dereference /run/systemd/network/* "${WORKDIR}/rootfs/etc/systemd/network"
+fi
+
+configs_destination="${WORKDIR}/rootfs/etc/kpc"
+mkdir -p "${configs_destination}"
+cp -r bootcfg "${configs_destination}"
+cp -r dockerfiles "${configs_destination}"
+
+umount "${WORKDIR}/rootfs"
+trap "error_output ; rm -rf '${WORKDIR}'" EXIT
 
