@@ -3,7 +3,7 @@
 ### Deployment layout and supporting infrastructure
 This document describes deploying Kolla to baremetal hosts running CoreOS, which have been PXE-booted from another CoreOS host (the **deploy host**).
 
-![](images/layout1.png)
+![](fig1.png)
 
 Most of the required supporting infrastructure (CoreOS's "bootcfg" network boot service, private Docker registry, etc.) are run inside docker containers on the deploy host, including kolla-ansible. The deploy host is not technically part of the deployment and can be shut down once it is completed. However, the host should be preserved in case it is needed later for running Kolla upgrades or reconfigurations.
 
@@ -23,7 +23,7 @@ The vlan terminology used here is described in terms of "vlan is untagged for po
   - The host's IP addresses on this network are how Ansible will connect to them, and Kolla's management VIP (where OpenStack management APIs will end up) is also chosen as an unused IP in this network (config option: 'kolla_internal_vip_address').
   - The NAT router handles DHCP on this network, though some devices like switches may still be statically assigned outside of the DHCP range if desired.
 
-![](images/layout2.png)
+![](fig2.png)
 **2. A vlan for IPMI network.**
   - This network must not have Internet access.
   - If your hosts have dedicated IPMI NICs, the ports they plug into should be untagged on the switch for this network.
@@ -31,11 +31,11 @@ The vlan terminology used here is described in terms of "vlan is untagged for po
   - Other ports are set as tagged for this network as-needed (such as the uplink to the NAT router).
   - Assuming the case of dedicated IPMI NICs, DHCP for the IPMI network is provided by a second DHCP server on the NAT router that runs on its interface to this vlan (the test lab uses a Mikrotik RB450G). If your router cannot run both networks in this way you could instead use a second NAT router with nothing plugged in to the Internet/WAN port to provide DHCP to this network, by plugging the LAN side of the router into a port that is untagged for this network and configuring it for the correct IP range. You could also statically assign IPs to the IPMI NICs.
 
-![](images/layout3.png)
+![](fig3.png)
 **3. External/provider network access**
   - At least one NIC on each host is configured to be used for external/provider network access (config option: 'kolla_external_vip_interface').
 
-![](images/layout4.png)
+![](fig4.png)
 
 ### Deploy host install
 
