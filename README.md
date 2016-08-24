@@ -62,7 +62,7 @@ Follow these steps to live-boot the deploy host from CoreOS ISO then install to 
     ```
   - Check out this repo:
     ```
-    git clone https://github.com/ropsoft/KPC.git
+    git clone https://github.com/ropsoft/kpc.git
     ```
   - Run script to customize templates for bootcfg service
 
@@ -102,7 +102,7 @@ Follow these steps to live-boot the deploy host from CoreOS ISO then install to 
   - Check out this repo:
 
     ```
-    git clone https://github.com/ropsoft/KPC.git
+    git clone https://github.com/ropsoft/kpc.git
     ```
 
   - Build container with IPMI tools:
