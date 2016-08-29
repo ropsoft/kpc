@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# reset templating from last run
+git status | grep modified | awk '{print $2}' | grep -v template-bootcfg.bash | xargs git checkout
+
+#kill container from last run
+docker ps -a | grep bootcfg | awk '{print $1}' | xargs -I{} bash -c 'docker kill {} && docker rm {}'
+
+# remove ignition.json from last run
+rm -v ignition.json
+
 this_script="$(basename $0)"
 
 # next two functions:
@@ -34,8 +43,6 @@ fi
 [ -e /usr/share/coreos/update.conf ] && source /usr/share/coreos/update.conf
 [ -e /etc/coreos/update.conf ] && source /etc/coreos/update.conf
 source /etc/os-release
-
-exit 0
 
 echo "This deploy host is booted to CoreOS ${VERSION} from the ${GROUP} release channel."
 echo " - Will download and deploy CoreOS ${VERSION} from release channel ${GROUP} to any target nodes needing install."
@@ -104,14 +111,30 @@ grep -rlZ KPC_discovery_token . | grep -zZv "${this_script}" | xargs -0 sed -i -
 echo "Downloading required coreos images using upstream get-coreos script"
 bootcfg/scripts/get-coreos "${GROUP}" "${VERSION}" ./bootcfg/assets
 
-
+echo "Starting up a temporary bootcfg instance to render the Ignition config this host will run after install/reboot"
 docker run -d -p 8080:8080 -v $PWD/bootcfg:/var/lib/bootcfg:Z \
-    -v $PWD/bootcfg/groups/etcd-install:/var/lib/bootcfg/groups:Z \
+    -v $PWD/bootcfg/groups/kolla:/var/lib/bootcfg/groups:Z \
     quay.io/coreos/bootcfg:v0.4.0 -address=0.0.0.0:8080 -log-level=debug
 
-read -r -p "Are you sure you want to run coreos-install and ERASE ${device}? [y/N] " response
+sleep 2
+
+echo "Retrieving Ignition config for deploy host"
+curl "http://10.101.0.15:8080/ignition?mac=00-00-00-00-00-00&modekey=deployhost&etcd_discovery_id=3b7d535dc6c23ba5d382d5944743fb91&coreos_private_subnet_hint=10.101.0." --retry 5 --retry-delay 2 -o ignition.json
+
+
+DEVICE=/dev/sda
+read -r -p "Are you sure you want to run coreos-install and ERASE ${DEVICE}? [y/N] " response
 response=${response,,}    # tolower
-if [[ $response =~ ^(yes|y)$ ]]
+if [[ ! $response =~ ^(yes|y)$ ]]
+then
+    echo "You said no"
+    exit 1
+fi
+
+
+
+coreos-install -d "${DEVICE}" -C "${GROUP}" -V "${VERSION}" -i ignition.json -b http://"${KPC_bootcfg_endpoint}":8080/assets/coreos
+udevadm settle
 
 
 # most of the rest of this script is code borrowed from the upstream coreos-install script
@@ -153,4 +176,8 @@ cp -r dockerfiles "${configs_destination}"
 
 umount "${WORKDIR}/rootfs"
 trap "error_output ; rm -rf '${WORKDIR}'" EXIT
+
+rm -rf "${WORKDIR}"
+trap - EXIT
+
 
