@@ -12,17 +12,8 @@ systemd:
          Type=oneshot
          Environment=OUTPUT=/run/metadata/KPC-custom-ip-metadata
          ExecStart=/usr/bin/mkdir --parent /run/metadata
-         ExecStart=/usr/bin/bash -c 'echo "ETCD_NODE_NAME=$(cat /dev/urandom | tr -dc 'a-z0-9' | head -c9)" > ${OUTPUT}'
+         #ExecStart=/usr/bin/bash -c 'echo "ETCD_NODE_NAME=$(cat /dev/urandom | tr -dc 'a-z0-9' | head -c9)" > ${OUTPUT}'
          ExecStart=/usr/bin/bash -c 'echo "COREOS_PRIVATE_IPV4=$(ip a | grep -o inet\ {{.request.query.coreos_private_subnet_hint}}[0-9]* | cut -d\  -f2)" >> ${OUTPUT}'
-    - name: locksmithd.service
-      dropins:
-        - name: 40-ignition.conf
-          contents: |
-            [Service]
-            # #FIXME the sleep in the ExecStartPre below needs a better fix.
-            # It exists because the etcdctl command later in the line needs more time before it will 
-            # succeed and I hesitate to add unofficial unit dependencies to the stock locksmithd unit
-            ExecStartPre=/usr/bin/bash -c 'sleep 20 && /usr/bin/systemctl set-environment LOCKSMITHD_ENDPOINT=$( etcdctl --debug --endpoints 'http://127.0.0.1:3379' member list 2>&1 | sed -ne "s|^got endpoints(\([^)]*\)) after sync|\1|p" )'
     - name: etcd2.service
       enable: true
       dropins:
@@ -38,19 +29,14 @@ systemd:
             # note non-standard etcd2 ports
             # this unit file was written for use with OpenStack Kolla, which may launch its own etcd2
             ExecStart=/usr/bin/etcd2 \
-              --name=${ETCD_NODE_NAME} \
-              --advertise-client-urls=http://${COREOS_PRIVATE_IPV4}:3379 \
-              --initial-advertise-peer-urls=http://${COREOS_PRIVATE_IPV4}:3380 \
-              --listen-client-urls=http://0.0.0.0:3379 \
-              --listen-peer-urls=http://${COREOS_PRIVATE_IPV4}:3380 \
+              --listen-client-urls=http://127.0.0.1:3379 \
               --discovery=https://discovery.etcd.io/{{.request.query.etcd_discovery_id}}
     - name: docker.service
       dropins:
         - name: 50-insecure-registry.conf
           contents: |
             [Service]
-            Environment='DOCKER_OPTS=--insecure-registry="10.101.0.15:5000"'
-            MountFlags=shared
+            Environment='DOCKER_OPTS=--insecure-registry="${COREOS_PRIVATE_IPV4}:5000"'
 {{ if .ssh_authorized_keys }}
 passwd:
   users:
