@@ -39,6 +39,8 @@ The vlan terminology used here is described in terms of "vlan is untagged for po
 
 ### Deploy host install
 
+## This process involves formatting and installing to a disk or other block device. There are any number of possible ways to lose data, chief of these being choosing the wrong device to install to. Please proceed with caution.
+
 Follow these steps to live-boot the deploy host from CoreOS ISO then install to disk:
   - Download the CoreOS ISO and burn to optical media or copy it to a USB flash drive. At last check using 'dd' should work for a flash drive, or use one of the many generic ISO to USB helper tools (Rufus [highly recommended on Windows], UNetbootin, Universal USB Installer, etc.).
     - _**IMPORTANT**_: The CoreOS version and release channel of the ISO used to boot the deploy host will be the version and channel used on the nodes. Overrides for this may be added at a later date.
