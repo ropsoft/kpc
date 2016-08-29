@@ -31,6 +31,42 @@ systemd:
             ExecStart=/usr/bin/etcd2 \
               --listen-client-urls=http://127.0.0.1:3379 \
               --discovery=https://discovery.etcd.io/{{.request.query.etcd_discovery_id}}
+    - name: docker-dnsmasq4bootcfg.service
+      enable: true
+      dropins:
+        - name: 20-main.conf
+          contents: |
+            [Unit]
+            Description=Dnsmasq dhcp proxy for bootcfg
+            Requires=docker.service,ip-metadata-kpc.service
+            After=docker.service,ip-metadata-kpc.service
+            
+            [Service]
+            Restart=always
+            ExecStart=/usr/bin/docker run -d --net=host --cap-add=NET_ADMIN --name dnsmasq4bootcfg quay.io/coreos/dnsmasq -d -q --dhcp-range=${COREOS_PRIVATE_IPV4},proxy --enable-tftp --tftp-root=/var/lib/tftpboot --dhcp-userclass=set:ipxe,iPXE --pxe-service=tag:#ipxe,x86PC,"PXE chainload to iPXE",undionly.kpxe --pxe-service=tag:ipxe,x86PC,"iPXE",http://${COREOS_PRIVATE_IPV4}:8080/boot.ipxe --log-queries --log-dhcp
+            ExecStop=/usr/bin/docker stop -t 2 dnsmasq4bootcfg
+            ExecStopPost=/usr/bin/docker rm -f dnsmasq4bootcfg
+            
+            [Install]
+            WantedBy=default.target
+    - name: docker-bootcfg.service
+      enable: true
+      dropins:
+        - name: 20-main.conf
+          contents: |
+            [Unit]
+            Description=bootcfg
+            Requires=docker.service
+            After=docker.service
+            
+            [Service]
+            Restart=always
+            ExecStart=/usr/bin/docker run -d -p 8080:8080 --name bootcfg -v /etc/kpc/bootcfg:/var/lib/bootcfg:Z -v /etc/kpc/bootcfg/groups/etcd-install:/var/lib/bootcfg/groups:Z quay.io/coreos/bootcfg:v0.4.0 -address=0.0.0.0:8080 -log-level=debug
+            ExecStop=/usr/bin/docker stop -t 2 bootcfg
+            ExecStopPost=/usr/bin/docker rm -f bootcfg
+            
+            [Install]
+            WantedBy=default.target
     - name: docker.service
       dropins:
         - name: 50-insecure-registry.conf
