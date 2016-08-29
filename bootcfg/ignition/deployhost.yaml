@@ -19,12 +19,7 @@ systemd:
       dropins:
         - name: 50-metadata.conf
           contents: |
-            [Unit]
-            Requires=ip-metadata-kpc.service
-            After=ip-metadata-kpc.service
-            
             [Service]
-            EnvironmentFile=/run/metadata/KPC-custom-ip-metadata
             ExecStart=
             # note non-standard etcd2 ports
             # this unit file was written for use with OpenStack Kolla, which may launch its own etcd2
@@ -70,6 +65,7 @@ systemd:
             [Install]
             WantedBy=default.target
     - name: docker.service
+      enable: true
       dropins:
         - name: 50-meta-and-insecure-registry.conf
           contents: |
