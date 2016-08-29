@@ -1,7 +1,7 @@
 {
   "id": "deployer-group",
   "name": "Kolla bootcfg Deploy Host Group",
-  "profile": "deployerprofile",
+  "profile": "deployprofile",
   "selector": {
     "modekey": "deployhost"
   },
