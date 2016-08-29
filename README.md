@@ -43,9 +43,9 @@ The vlan terminology used here is described in terms of "vlan is untagged for po
 
 Follow these steps to live-boot the deploy host from CoreOS ISO then install to disk:
   - Download the CoreOS ISO and burn to optical media or copy it to a USB flash drive. At last check using 'dd' should work for a flash drive, or use one of the many generic ISO to USB helper tools (Rufus [highly recommended on Windows], UNetbootin, Universal USB Installer, etc.).
-    - _**IMPORTANT**_: The CoreOS version and release channel of the ISO used to boot the deploy host will be the version and channel used on the nodes. Overrides for this may be added at a later date.
-  - If you want the deploy host to have a predictable IP you may wish to add a static entry for it in the management network's DHCP server.
-  - Set deployer node to boot from the disk you will install to, then perform a one-time boot from the ISO disc/drive to bring up a live-booted CoreOS system. It will automatically log you in as '**core**'.
+    - _**IMPORTANT**_: The CoreOS version and release channel of the ISO used to boot the deploy host will be the version and channel installed on the deploy host and deployed to the nodes. Overrides for this may be added at a later date.
+  - If you want the deploy host to have a predictable IP you may wish to add a static entry for it in the management network's DHCP server at this time. (If you need/want to convert a dynamic lease instead, there is no reason you can't insert a reboot after the initial key copy/SSH in order to pick up the new lease)
+  - Set deployer node to boot from the disk you will install to (and double-check that), then perform a one-time boot from the ISO disc/drive to bring up a live-booted CoreOS system. It will automatically log you in as '**core**'.
   - Note the IP the deploy host gets on the management network so we can SSH to it shortly. The rest of this document assumes the address is '10.101.0.15':  
     ```
     ip a
@@ -64,64 +64,29 @@ Follow these steps to live-boot the deploy host from CoreOS ISO then install to 
     ```
   - Check out this repo:
     ```
-    git clone https://github.com/ropsoft/kpc.git
+    git clone https://github.com/ropsoft/kpc.git && cd kpc
     ```
-  - Run script to customize templates for bootcfg service
-
-
-  - Create a cloud-init or ignition config that sets an SSH key for **core** and sets Docker to use an insecure registry. We will pass this file to `coreos-install` to use while installing the OS to disk. The IP or hostname of the insecure registry must be the actual location you intend to use (FIXME: add a note that what you put here in the end will point at THIS host - the deployer), but the private Docker Registry does not have to be running yet.  
+  - Prior to running the script in the next step use `fdisk -l` or similar tooling to identify the disk or block device you have set as the default boot option above and now wish to install to. Check with the upstream coreos-install script to see what is supported (for example as of this writing LVM seems unsupported by coreos-install).
+    - **template-bootcfg.bash will prompt for the device name and should prompt for confirmation before wiping and installing to that device**
+  - Run script to customize templates for bootcfg service and run coreos-install
+    - **ALL** of the SSH keys you have added to this live-booted host (in `~/.ssh/authorized_keys`) will be added as authorized for `core` in the installed deploy host and subsequntly in the deployed nodes.
+    - This script reads the SSH_CONNECTION Bash variable, so the '-E' sudo arg is required
+    - This script must be run from the root of the git repo
     ```
-    cd && vim cloud-config.yaml
-    ```
-    Contents:
-    ```
-    #cloud-config
-    
-    ssh_authorized_keys:
-      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDGdByTgSVHq.......
-    
-    manage_etc_hosts: localhost
-    
-    coreos:
-      units:
-        - name: docker.service
-          drop-ins:
-            - name: 50-insecure-registry.conf
-              content: |
-                [Service]
-                Environment='DOCKER_OPTS=--insecure-registry="10.101.0.15:5000"'
-          command: restart
-    ```  
-  - Find the device name of the disk you set the deployer to boot to, using `sudo fdisk -l` or similar. The example coreos-install command below assumes you found this device at '/dev/sda'.
-  - If you need to configure a static DHCP lease in your router for your deployer node this is a good time to do it, so that you get the new IP when the system reboots.
-  - Run coreos-install to install to disk:
-
-    ```
-    sudo coreos-install -d /dev/sda -C stable -c ~/cloud-config.yaml
-    sudo reboot
+    sudo -E ./template-bootcfg.bash
     ```
 
-  - Check out this repo:
-
-    ```
-    git clone https://github.com/ropsoft/kpc.git
-    ```
+  - Reboot and SSH back in.
 
   - Build container with IPMI tools:
 
     ```
-    cd KPC/dockerfiles/
+    cd /etc/kpc/dockerfiles/
     docker build -t ipmitools ipmitools/
-    cd ..
+    cd -
     ```
 
-  - Run script to template configs, download image assets, etc.
-
-    ```
-    sudo -E ./prepfigurelate.bash
-    ```
-
-  - Start dnsmasq and bootcfg containers. Check the value of --dhcp-range on second command:
+  - Start dnsmasq and bootcfg containers. Edit/check the value of --dhcp-range on second command:
 
     ```
     docker run -d -p 8080:8080 -v $PWD/bootcfg:/var/lib/bootcfg:Z -v $PWD/bootcfg/groups/etcd-install:/var/lib/bootcfg/groups:Z quay.io/coreos/bootcfg:v0.4.0 -address=0.0.0.0:8080 -log-level=debug
