@@ -55,7 +55,7 @@ systemd:
         
         [Service]
         Restart=always
-        ExecStart=/usr/bin/docker run -d -p 8080:8080 --name bootcfg -v /etc/kpc/bootcfg:/var/lib/bootcfg:Z -v /etc/kpc/bootcfg/groups/etcd-install:/var/lib/bootcfg/groups:Z quay.io/coreos/bootcfg:v0.4.0 -address=0.0.0.0:8080 -log-level=debug
+        ExecStart=/usr/bin/docker run -d -p 8080:8080 --name bootcfg -v /etc/kpc/bootcfg:/var/lib/bootcfg:Z -v /etc/kpc/bootcfg/groups/kolla:/var/lib/bootcfg/groups:Z quay.io/coreos/bootcfg:v0.4.0 -address=0.0.0.0:8080 -log-level=debug
         ExecStop=/usr/bin/docker stop -t 2 bootcfg
         ExecStopPost=/usr/bin/docker rm -f bootcfg
         
