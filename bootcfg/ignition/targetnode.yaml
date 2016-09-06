@@ -49,8 +49,12 @@ systemd:
       dropins:
         - name: 50-insecure-registry.conf
           contents: |
+            [Unit]
+            Requires=ip-metadata-kpc.service
+            After=ip-metadata-kpc.service
+            
             [Service]
-            Environment='DOCKER_OPTS=--insecure-registry="10.101.0.15:5000"'
+            ExecStartPre=/usr/bin/bash -c '/usr/bin/systemctl set-environment DOCKER_OPTS=--insecure-registry=${COREOS_PRIVATE_IPV4}:5000'
             MountFlags=shared
 {{ if .ssh_authorized_keys }}
 passwd:
