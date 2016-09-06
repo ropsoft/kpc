@@ -25,7 +25,7 @@ systemd:
             # note non-standard etcd2 ports
             # this unit file was written for use with OpenStack Kolla, which may launch its own etcd2
             ExecStart=/usr/bin/etcd2 \
-              --proxy=on
+              --proxy=on \
               --listen-client-urls=http://127.0.0.1:3379 \
               --discovery=https://discovery.etcd.io/{{.request.query.etcd_discovery_id}}
     - name: docker-dnsmasq4bootcfg.service
