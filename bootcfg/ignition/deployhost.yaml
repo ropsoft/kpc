@@ -10,6 +10,7 @@ systemd:
          
          [Service]
          Type=oneshot
+         RemainAfterExit=yes
          Environment=OUTPUT=/run/metadata/KPC-custom-ip-metadata
          ExecStart=/usr/bin/mkdir --parent /run/metadata
          #ExecStart=/usr/bin/bash -c 'echo "ETCD_NODE_NAME=$(cat /dev/urandom | tr -dc 'a-z0-9' | head -c9)" > ${OUTPUT}'
