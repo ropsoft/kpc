@@ -66,7 +66,7 @@ Follow these steps to live-boot the deploy host from CoreOS ISO then install to 
     ```
     git clone https://github.com/ropsoft/kpc.git && cd kpc
     ```
-  - Prior to running the script in the next step use `fdisk -l` or similar tooling to identify the disk or block device you have set as the default boot option above and now wish to install to. Check with the upstream coreos-install script to see what is supported (for example as of this writing LVM seems unsupported by coreos-install).
+  - Prior to running the script in the next step use `sudo fdisk -l` or similar tooling to identify the disk or block device you have set as the default boot option above and now wish to install to. Check with the upstream coreos-install script to see what is supported (for example as of this writing LVM seems unsupported by coreos-install).
     - **template-bootcfg.bash will prompt for the device name and should prompt for confirmation before wiping and installing to that device**
   - Run script to customize templates for bootcfg service and run coreos-install
     - **ALL** of the SSH keys you have added to this live-booted host (in `~/.ssh/authorized_keys`) will be added as authorized for `core` in the installed deploy host and subsequntly in the deployed nodes.
