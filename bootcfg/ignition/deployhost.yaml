@@ -39,7 +39,7 @@ systemd:
         [Service]
         EnvironmentFile=/run/metadata/KPC-custom-ip-metadata
         Restart=always
-        ExecStart=/usr/bin/docker run -d --net=host --cap-add=NET_ADMIN --name dnsmasq4bootcfg quay.io/coreos/dnsmasq -d -q --dhcp-range=${COREOS_PRIVATE_IPV4},proxy --enable-tftp --tftp-root=/var/lib/tftpboot --dhcp-userclass=set:ipxe,iPXE --pxe-service=tag:#ipxe,x86PC,"PXE chainload to iPXE",undionly.kpxe --pxe-service=tag:ipxe,x86PC,"iPXE",http://${COREOS_PRIVATE_IPV4}:8080/boot.ipxe --log-queries --log-dhcp
+        ExecStart=/usr/bin/docker run --net=host --cap-add=NET_ADMIN --name dnsmasq4bootcfg quay.io/coreos/dnsmasq -d -q --dhcp-range=${COREOS_PRIVATE_IPV4},proxy --enable-tftp --tftp-root=/var/lib/tftpboot --dhcp-userclass=set:ipxe,iPXE --pxe-service=tag:#ipxe,x86PC,"PXE chainload to iPXE",undionly.kpxe --pxe-service=tag:ipxe,x86PC,"iPXE",http://${COREOS_PRIVATE_IPV4}:8080/boot.ipxe --log-queries --log-dhcp
         ExecStop=/usr/bin/docker stop -t 2 dnsmasq4bootcfg
         ExecStopPost=/usr/bin/docker rm -f dnsmasq4bootcfg
         
@@ -55,7 +55,7 @@ systemd:
         
         [Service]
         Restart=always
-        ExecStart=/usr/bin/docker run -d -p 8080:8080 --name bootcfg -v /etc/kpc/bootcfg:/var/lib/bootcfg:Z -v /etc/kpc/bootcfg/groups/kolla:/var/lib/bootcfg/groups:Z quay.io/coreos/bootcfg:v0.4.0 -address=0.0.0.0:8080 -log-level=debug
+        ExecStart=/usr/bin/docker run -p 8080:8080 --name bootcfg -v /etc/kpc/bootcfg:/var/lib/bootcfg:Z -v /etc/kpc/bootcfg/groups/kolla:/var/lib/bootcfg/groups:Z quay.io/coreos/bootcfg:v0.4.0 -address=0.0.0.0:8080 -log-level=debug
         ExecStop=/usr/bin/docker stop -t 2 bootcfg
         ExecStopPost=/usr/bin/docker rm -f bootcfg
         
