@@ -119,3 +119,9 @@ Follow these steps to live-boot the deploy host from CoreOS ISO then install to 
     # view etcd cluster health, if desired
     etcdctl --endpoints "http://127.0.0.1:3379" cluster-health
     ```
+
+  - Start the kolla_deployer container interactively, binding-in the Docker socket to allow for starting Docker Registry and building Kolla's container images from inside kolla_deployer.
+
+    ```
+    docker run -it -e "DPLYR_MGMTNET_IP=0.0.0.0update_me" -v /var/run/docker.sock:/var/run/docker.sock kolla_deployer
+    ```
