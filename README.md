@@ -78,15 +78,17 @@ Follow these steps to live-boot the deploy host from CoreOS ISO then install to 
 
   - Reboot and SSH back in.
 
-  - Build container with IPMI tools:
+  - Build ipmitools and kolla_deployer containers:
 
     ```
     cd /etc/kpc/dockerfiles/
     docker build -t ipmitools ipmitools/
+    docker build -t kolla_deployer kolla_deployer/
     cd -
     ```
 
   - Configure the BIOS of all target hosts to boot from the hard disk the OS will be installed to, then let the hosts idle (on "no boot media found" screen, or on their last-installed OS [assuming it wasn't running a DHCP server!], or etc.).
+
   - Fire up the ipmitools container:
 
     ```
