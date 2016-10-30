@@ -54,8 +54,7 @@ systemd:
             After=ip-metadata-kpc.service
             
             [Service]
-            EnvironmentFile=/run/metadata/KPC-custom-ip-metadata
-            ExecStartPre=/usr/bin/bash -c '/usr/bin/systemctl set-environment DOCKER_OPTS=--insecure-registry=${COREOS_PRIVATE_IPV4}:5000'
+            ExecStartPre=/usr/bin/bash -c '/usr/bin/systemctl set-environment DOCKER_OPTS=--insecure-registry={{.insecure_registry_ip}}:5000'
             MountFlags=shared
 {{ if .ssh_authorized_keys }}
 passwd:
