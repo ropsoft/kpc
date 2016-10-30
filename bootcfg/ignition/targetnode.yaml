@@ -54,7 +54,7 @@ systemd:
             After=ip-metadata-kpc.service
             
             [Service]
-            ExecStartPre=/usr/bin/bash -c '/usr/bin/systemctl set-environment DOCKER_OPTS=--insecure-registry={{.insecure_registry_ip}}:5000'
+            ExecStartPre=/usr/bin/bash -c '/usr/bin/systemctl set-environment DOCKER_OPTS=--insecure-registry={{.request.query.coreos_insecure_registry_ip}}:5000'
             MountFlags=shared
 {{ if .ssh_authorized_keys }}
 passwd:
