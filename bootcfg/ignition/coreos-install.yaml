@@ -9,7 +9,7 @@ systemd:
         After=network-online.target
         [Service]
         Type=oneshot
-        ExecStart=/usr/bin/curl {{.ignition_endpoint}}?{{.request.raw_query}}&modekey=targetnode&etcd_discovery_id={{.etcd_discovery_id}}&coreos_private_subnet_hint={{.coreos_private_subnet_hint}} -o ignition.json
+        ExecStart=/usr/bin/curl {{.ignition_endpoint}}?{{.request.raw_query}}&modekey=targetnode&etcd_discovery_id={{.etcd_discovery_id}}&coreos_private_subnet_hint={{.coreos_private_subnet_hint}}$coreos_insecure_registry_ip={{.ignition_endpoint}} -o ignition.json
         ExecStart=/usr/bin/coreos-install -d /dev/nvme0n1 -C {{.coreos_channel}} -V {{.coreos_version}} -i ignition.json {{if index . "baseurl"}}-b {{.baseurl}}{{end}}
         ExecStart=/usr/bin/udevadm settle
         ExecStart=/usr/bin/systemctl reboot
