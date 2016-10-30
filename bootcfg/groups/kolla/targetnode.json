@@ -3,7 +3,8 @@
   "name": "Kolla Target Node Group",
   "profile": "targetnode",
   "selector": {
-    "modekey": "targetnode"
+    "modekey": "targetnode",
+    "insecure_registry_ip": "KPC_bootcfg_endpoint",
   },
   "metadata": {
     "ssh_authorized_keys": [KPC_ssh_authorized_keys]
