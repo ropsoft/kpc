@@ -123,5 +123,16 @@ Follow these steps to live-boot the deploy host from CoreOS ISO then install to 
   - Start the kolla_deployer container interactively, binding-in the Docker socket to allow for starting Docker Registry and building Kolla's container images from inside kolla_deployer.
 
     ```
-    docker run -it -e "DPLYR_MGMTNET_IP=0.0.0.0update_me" -v /var/run/docker.sock:/var/run/docker.sock kolla_deployer
+    export DPLYR_MGMTNET_IP='10.101.10.15'  # the deploy host
+    docker run -it -e "DPLYR_MGMTNET_IP=${DPLYR_MGMTNET_IP}" -v /var/run/docker.sock:/var/run/docker.sock kolla_deployer
+    ```
+
+  - The previous steps will bring you to a prompt inside kolla_deployer. Run the following commands to deploy Kolla.
+
+    ```
+    # this first command is only needed if docker commands return "client is newer than server (client API version: X.XX, server API version: Y.YY)"
+    export DOCKER_API_VERSION=Y.YY  # set to client version. may be harder to fix if the server is ever newer than the client
+    docker run -d -p 5000:5000 --restart=always --name registry registry:2
+    kolla-build --base ubuntu --type source --threads 16 --registry "${DPLYR_MGMTNET_IP}":5000 --push
+    
     ```
