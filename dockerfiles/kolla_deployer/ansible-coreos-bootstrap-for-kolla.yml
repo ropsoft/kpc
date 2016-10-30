@@ -1,0 +1,25 @@
+---
+
+- name: Bootstrap CoreOS for Ansible
+  hosts: coreos
+  sudo: yes
+  gather_facts: False
+  roles:
+    - defunctzombie.coreos-bootstrap
+
+- name: Bootstrap CoreOS for Ansible
+  hosts: coreos
+  sudo: yes
+  tasks:
+    - name: Install docker-py for Kolla
+      pip: name=docker-py state=present
+
+      #
+      # task source: # https://gist.github.com/rothgar/8793800
+      # (rumored to eat IPv6 and incorrecly match substrings - but our target node names are from random etcd2 node names not hostnames)
+      #
+    - name: Build hosts file on each target node, until SkyDNS is implemented
+      lineinfile: dest=/etc/hosts regexp='.*{{ item }}$' line="{{ hostvars[item].ansible_default_ipv4.address }} {{item}}" state=present backup=yes
+      when: hostvars[item].ansible_default_ipv4.address is defined
+      with_items: groups['coreos']
+
