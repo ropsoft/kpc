@@ -19,6 +19,7 @@ RUN apt-get -q -y update && \
 ADD etcd_inv.py /usr/local/share/kolla/ansible/inventory
 ADD etcd.ini /root
 ADD ansible-coreos-bootstrap-for-kolla.yml /root
+ADD ansible.cfg /etc/ansible
 
 RUN chmod 755 /usr/local/share/kolla/ansible/inventory/etcd_inv.py
 
