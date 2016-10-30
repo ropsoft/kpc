@@ -134,5 +134,10 @@ Follow these steps to live-boot the deploy host from CoreOS ISO then install to 
     export DOCKER_API_VERSION=Y.YY  # set to client version. may be harder to fix if the server is ever newer than the client
     docker run -d -p 5000:5000 --restart=always --name registry registry:2
     kolla-build --base ubuntu --type source --threads 16 --registry "${DPLYR_MGMTNET_IP}":5000 --push
-    
+    ANSIBLE_SSH_PIPELINING=1 ansible-playbook -i /usr/local/share/kolla/ansible/inventory/ /root/ansible-coreos-bootstrap-for-kolla.yml
+    # 127.0.0.1 is actually invalid here since we're inside kolla_deployer... run this one on a node or the deploy host proper
+    curl http://127.0.0.1:3379/v2/keys/ansible/groupvars/coreos/ansible_ssh_user -XDELETE -d value="core"
+    sed -i -e 's/^#*kolla_base_distro:.*/kolla_base_distro: "ubuntu"/' -e 's/^#*kolla_install_type:.*/kolla_install_type: "source"/' -e 's/^#*kolla_internal_vip_address:.*/kolla_internal_vip_address: "10.101.10.215"/' -e "s/^#*docker_registry:.*/docker_registry: \"${DPLYR_MGMTNET_IP}:5000\"/" /etc/kolla/globals.yml
+    ANSIBLE_SSH_PIPELINING=1 kolla-ansible prechecks --inventory /usr/local/share/kolla/ansible/inventory/
+
     ```
