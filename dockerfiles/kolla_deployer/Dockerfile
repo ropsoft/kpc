@@ -14,12 +14,13 @@ RUN apt-get -q -y update && \
     grep -v 'control[^] -]\|network[^] -]\|compute[^] -]\|storage[^] -]' /usr/local/share/kolla/ansible/inventory/multinode > /usr/local/share/kolla/ansible/inventory/kolla_groups && \
     rm /usr/local/share/kolla/ansible/inventory/all-in-one && \
     #rm /usr/local/share/kolla/ansible/inventory/multinode
-    mv /usr/local/share/kolla/ansible/inventory/multinode /root
+    mv /usr/local/share/kolla/ansible/inventory/multinode /root && \
+    mkdir -p /etc/ansible/roles/
 
 ADD etcd_inv.py /usr/local/share/kolla/ansible/inventory
 ADD etcd.ini /root
 ADD ansible-coreos-bootstrap-for-kolla.yml /root
-ADD ansible.cfg /etc/ansible
+ADD ansible.cfg /etc/ansible/
 
 RUN chmod 755 /usr/local/share/kolla/ansible/inventory/etcd_inv.py
 
