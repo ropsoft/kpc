@@ -134,6 +134,7 @@ Follow these steps to live-boot the deploy host from CoreOS ISO then install to 
     export DOCKER_API_VERSION=Y.YY  # set to client version. may be harder to fix if the server is ever newer than the client
     docker run -d -p 5000:5000 --restart=always --name registry registry:2
     kolla-build --base ubuntu --type source --threads 16 --registry "${DPLYR_MGMTNET_IP}":5000 --push
+    vim /root/etcd.ini  # set host to be one of the nodes (should change to be the deployer later), and port to 3379
     ANSIBLE_SSH_PIPELINING=1 ansible-playbook -i /usr/local/share/kolla/ansible/inventory/ /root/ansible-coreos-bootstrap-for-kolla.yml
     ###FIXME FIXME add a task to coreos-bootstrap playbook to copy 'core's ssh key to root till python paths are figured out on coreos
     # 127.0.0.1 is actually invalid here since we're inside kolla_deployer... run this one on a node or the deploy host proper
