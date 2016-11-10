@@ -113,6 +113,20 @@ grep -rlZ KPC_discovery_token . | grep -zZv "${this_script}" | xargs -0 sed -i -
 echo "Downloading required coreos images using upstream get-coreos script"
 bootcfg/scripts/get-coreos "${GROUP}" "${VERSION}" ./bootcfg/assets
 
+read -r -p "Enter name of block device (not a partition) to destroy and install CoreOS to (ex.: /dev/sdx): " DEVICE
+if [[ "${DEVICE:-}" == '' ]]
+then
+    echo "ERROR: You must enter a device name to destroy and install CoreOS to." >&2
+    exit 1
+fi
+read -r -p "Are you sure you want to run coreos-install and ERASE ${DEVICE}? [y/N] " response
+response=${response,,}    # tolower
+if [[ ! $response =~ ^(yes|y)$ ]]
+then
+    echo "You said no"
+    exit 1
+fi
+
 echo "Starting up a temporary bootcfg instance to render the Ignition config this host will run after install/reboot"
 docker run -d -p 8080:8080 -v $PWD/bootcfg:/var/lib/bootcfg:Z \
     -v $PWD/bootcfg/groups/kolla:/var/lib/bootcfg/groups:Z \
@@ -122,18 +136,6 @@ sleep 2
 
 echo "Retrieving Ignition config for deploy host"
 curl "http://10.101.0.15:8080/ignition?mac=00-00-00-00-00-00&modekey=deployhost&etcd_discovery_id=${KPC_discovery_token}&coreos_private_subnet_hint=10.101.0." --retry 5 --retry-delay 2 -o ignition.json
-
-
-DEVICE=/dev/sda
-read -r -p "Are you sure you want to run coreos-install and ERASE ${DEVICE}? [y/N] " response
-response=${response,,}    # tolower
-if [[ ! $response =~ ^(yes|y)$ ]]
-then
-    echo "You said no"
-    exit 1
-fi
-
-
 
 coreos-install -d "${DEVICE}" -C "${GROUP}" -V "${VERSION}" -i ignition.json -b http://"${KPC_bootcfg_endpoint}":8080/assets/coreos
 udevadm settle
