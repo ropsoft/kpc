@@ -103,7 +103,7 @@ grep -rlZ KPC_ssh_authorized_keys . | grep -zZv "${this_script}" | xargs -0 sed 
 echo "Retrieving an etcd discovery token for installed nodes to bootstrap with"
 #FIXME need a more elegant way to set the cluster size
 export KPC_discovery_fullurl="$(curl -w "\n" 'https://discovery.etcd.io/new?size=3' 2>/dev/null)"
-export KPC_discvoery_token="${KPC_discovery_fullurl##*/}"  # cut off everything but the token string, via parameter substitution
+export KPC_discovery_token="${KPC_discovery_fullurl##*/}"  # cut off everything but the token string, via parameter substitution
 
 echo "Got ${KPC_discovery_fullurl}"
 #FIXME error out if no token
