@@ -102,11 +102,13 @@ grep -rlZ KPC_ssh_authorized_keys . | grep -zZv "${this_script}" | xargs -0 sed 
 # create a token to bootstrap etcd - remember to set size to the number of target nodes
 echo "Retrieving an etcd discovery token for installed nodes to bootstrap with"
 #FIXME need a more elegant way to set the cluster size
-export KPC_discovery_token="$(curl -w "\n" 'https://discovery.etcd.io/new?size=3' 2>/dev/null)"
-echo "Got ${KPC_discovery_token}"
+export KPC_discovery_fullurl="$(curl -w "\n" 'https://discovery.etcd.io/new?size=3' 2>/dev/null)"
+export KPC_discvoery_token="${KPC_discovery_fullurl##*/}"  # cut off everything but the token string, via parameter substitution
+
+echo "Got ${KPC_discovery_fullurl}"
 #FIXME error out if no token
 # sed delimiter changed to avoid escaping '/'
-grep -rlZ KPC_discovery_token . | grep -zZv "${this_script}" | xargs -0 sed -i -e "s|KPC_discovery_token|${KPC_discovery_token##*/}|"
+grep -rlZ KPC_discovery_token . | grep -zZv "${this_script}" | xargs -0 sed -i -e "s|KPC_discovery_token|${KPC_discovery_token}|"
 
 echo "Downloading required coreos images using upstream get-coreos script"
 bootcfg/scripts/get-coreos "${GROUP}" "${VERSION}" ./bootcfg/assets
@@ -119,7 +121,7 @@ docker run -d -p 8080:8080 -v $PWD/bootcfg:/var/lib/bootcfg:Z \
 sleep 2
 
 echo "Retrieving Ignition config for deploy host"
-curl "http://10.101.0.15:8080/ignition?mac=00-00-00-00-00-00&modekey=deployhost&etcd_discovery_id=3b7d535dc6c23ba5d382d5944743fb91&coreos_private_subnet_hint=10.101.0." --retry 5 --retry-delay 2 -o ignition.json
+curl "http://10.101.0.15:8080/ignition?mac=00-00-00-00-00-00&modekey=deployhost&etcd_discovery_id=${KPC_discovery_token}&coreos_private_subnet_hint=10.101.0." --retry 5 --retry-delay 2 -o ignition.json
 
 
 DEVICE=/dev/sda
