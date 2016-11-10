@@ -13,8 +13,8 @@ systemd:
          RemainAfterExit=yes
          Environment=OUTPUT=/run/metadata/KPC-custom-ip-metadata
          ExecStart=/usr/bin/mkdir --parent /run/metadata
-         ExecStart=/usr/bin/bash -c 'echo "ETCD_NODE_NAME=$(cat /dev/urandom | tr -dc 'a-z0-9' | head -c9)" > ${OUTPUT}'
-         ExecStart=/usr/bin/bash -c 'echo "COREOS_PRIVATE_IPV4=$(ip a | grep -o inet\ {{.request.query.coreos_private_subnet_hint}}[0-9]* | cut -d\  -f2)" >> ${OUTPUT}'
+         ExecStart=/usr/bin/bash -c 'grep ETCD_NODE_NAME $OUTPUT || echo "ETCD_NODE_NAME=$(cat /dev/urandom | tr -dc 'a-z0-9' | head -c9)" >> ${OUTPUT}'
+         ExecStart=/usr/bin/bash -c 'grep COREOS_PRIVATE_IPV4 $OUTPUT || echo "COREOS_PRIVATE_IPV4=$(ip a | grep -o inet\ {{.request.query.coreos_private_subnet_hint}}[0-9]* | cut -d\  -f2)" >> ${OUTPUT}'
     - name: locksmithd.service
       dropins:
         - name: 40-ignition.conf
